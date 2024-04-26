@@ -1,6 +1,6 @@
 declare module 'hypercore' {
   import { Buffer } from 'node:buffer';
-  import { Readable } from 'streamx';
+  import { Readable } from 'node:stream';
 
   export interface ReadStreamOptions {
     start?: number;
@@ -35,7 +35,7 @@ declare module 'hypercore' {
     valueEncoding?: any; // abstract-encoding or compact-encoding instance
   }
 
-  export class Hypercore {
+  export default class Hypercore {
     readonly id: string;
     readonly key: Buffer;
     readonly keyPair: { publicKey: Buffer, secretKey: Buffer };
@@ -69,6 +69,4 @@ declare module 'hypercore' {
     replicate(isInitiator: boolean | any, options?: any): any; // Replication Stream
     findingPeers(): () => void;
   }
-
-  export default Hypercore;
 }

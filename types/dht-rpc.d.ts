@@ -2,7 +2,8 @@
 declare module 'dht-rpc' {
   import { EventEmitter } from 'node:events'
   import { Buffer } from 'node:buffer'
-  import { Readable } from 'streamx'
+  import { Readable } from 'node:stream'
+
   import RoutingTable from 'kademlia-routing-table';
   import TOS from 'time-ordered-set'
   import UDX, { UDXSocket } from 'udx-native'

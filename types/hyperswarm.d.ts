@@ -1,14 +1,23 @@
 
 declare module 'hyperswarm' {
-  import { NoiseSecretStream } from 'secret-stream';
   import { Buffer } from 'node:buffer';
   import { EventEmitter } from 'node:events';
-  import { Readable } from 'streamx';
+  import { Readable } from 'node:stream';
+
+  import { NoiseSecretStream } from '@hyperswarm/secret-stream';
   import DHT from 'dht-rpc';
 
   interface KeyPair {
     publicKey: Buffer;
     privateKey: Buffer;
+  }
+
+  interface Connection {
+    remotePublicKey: Buffer | string;
+  }
+
+  interface Firewall {
+    (remotePublicKey: Buffer, payload: Buffer | null): boolean
   }
 
   export interface HyperswarmOptions {
@@ -51,11 +60,20 @@ declare module 'hyperswarm' {
     resume: () => Promise<void>
   }
 
-  export interface Firewall {
-    (remotePublicKey: Buffer, payload: Buffer | null): boolean
+  export interface ConnectionSet {
+    [Symbol.iterator](): IterableIterator<Connection>,
+
+    size: number
+
+    has: (publicKey: Buffer | string) => boolean,
+    get: (publicKey: Buffer | string) => Connection | undefined;
+    add: (connection: Connection) => void;
+    delete: (connection: Connection) => void;
   }
 
-  export class Hyperswarm extends EventEmitter {
+  export default class Hyperswarm extends EventEmitter {
+    constructor(opts?: HyperswarmOptions)
+
     readonly dht: DHT;
     readonly destroyed: boolean
     readonly suspended: boolean
@@ -69,8 +87,6 @@ declare module 'hyperswarm' {
     readonly peers: Map
     readonly explicitPeers: Set
     readonly listening: null
-
-    constructor(opts?: HyperswarmOptions)
 
     connect(topic: Buffer, options?: JoinOptions): PeerDiscovery
     join(topic: Buffer, opts?: JoinOptions): PeerDiscovery
@@ -86,24 +102,5 @@ declare module 'hyperswarm' {
     topics(): IterableIterator<PeerDiscovery>
     on(event: 'connection', listener: (conn: NoiseSecretStream, info: PeerInfo) => void): this
   }
-
-  export class ConnectionSet {
-    readonly size: number;
-
-    constructor();
-
-    [Symbol.iterator](): IterableIterator<Connection>;
-
-    has(publicKey: Buffer | string): boolean;
-    get(publicKey: Buffer | string): Connection | undefined;
-    add(connection: Connection): void;
-    delete(connection: Connection): void;
-  }
-
-  export interface Connection {
-    remotePublicKey: Buffer | string;
-  }
-
-  export default Hyperswarm;
 }
 

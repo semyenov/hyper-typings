@@ -1,14 +1,14 @@
 
 declare module 'hyperbee' {
   import ReadyResource from 'ready-resource'
-  import { Readable } from 'streamx';
+  import { Readable } from 'node:stream';
 
   interface HyperbeeOptions {
     keyEncoding?: 'ascii' | 'utf-8' | 'binary';
     valueEncoding?: 'json' | 'utf-8' | 'binary';
   }
 
-  interface HyperbeeEntry<T = any> {
+  interface HyperbeeEntry<T = unknown> {
     seq: number;
     key: string;
     value: T;

@@ -1,7 +1,7 @@
 declare module 'noise-handshake' {
   import { Buffer } from 'node:buffer';
 
-  export interface KeyPair {
+  interface KeyPair {
     publicKey: Buffer;
     secretKey: Buffer;
   }
@@ -43,23 +43,23 @@ declare module 'noise-handshake' {
     split(): [Buffer, Buffer];
   }
 
-  export class NoiseState extends SymmetricState {
+  export default class NoiseState extends SymmetricState {
     constructor(pattern: string, initiator: boolean, staticKeypair: KeyPair, opts?: any);
 
-    readonly s: KeyPair;
-    readonly e: KeyPair | null;
-    readonly rs: Buffer | null;
-    readonly re: Buffer | null;
-    readonly psk: Buffer | null;
-    readonly pattern: string;
-    readonly handshake: any[]; // Array of symbols representing handshake steps
-    readonly isPskHandshake: boolean;
-    readonly protocol: Buffer;
-    readonly initiator: boolean;
-    readonly complete: boolean;
-    readonly rx: Buffer | null;
-    readonly tx: Buffer | null;
-    readonly hash: Buffer | null;
+    static s: KeyPair;
+    static e: KeyPair | null;
+    static rs: Buffer | null;
+    static re: Buffer | null;
+    static psk: Buffer | null;
+    static pattern: string;
+    static handshake: any[]; // Array of symbols representing handshake steps
+    static isPskHandshake: boolean;
+    static protocol: Buffer;
+    static initiator: boolean;
+    static complete: boolean;
+    static rx: Buffer | null;
+    static tx: Buffer | null;
+    static hash: Buffer | null;
 
     initialise(prologue: Buffer, remoteStatic: Buffer | null): void;
     final(): void;

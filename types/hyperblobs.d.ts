@@ -1,7 +1,9 @@
 
 declare module 'hyperblobs' {
-  import type Hypercore from 'hypercore'
-  import { Readable, Writable } from 'streamx'
+  import { Readable, Writable } from 'node:stream'
+  import Hypercore from 'hypercore'
+
+  export const DEFAULT_BLOCK_SIZE = 2 ** 16
 
   export interface HyperblobsOptions {
     blockSize?: number
@@ -12,33 +14,17 @@ declare module 'hyperblobs' {
     blockLength: number
   }
 
-  export const DEFAULT_BLOCK_SIZE = 2 ** 16
-
   export default class Hyperblobs {
     constructor(public readonly core: Hypercore, opts?: HyperblobsOptions)
+
     get feed(): Hypercore
     get locked(): boolean
-    put(blob: Buffer, opts?: PutOptions): Promise<number>
-    get(id: BlobId, opts?: GetOptions): Promise<Buffer | null>
-    clear(id: BlobId, opts?: { core?: CoreApi }): Promise<void>
-    createReadStream(id: BlobId, opts?: CreateReadStreamOptions): Readable
-    createWriteStream(opts?: CreateWriteStreamOptions): Writable
-  }
 
-  export interface PutOptions {
-    blockSize?: number
-  }
-
-  export interface GetOptions {
-    core?: Hypercore
-  }
-
-  export interface CreateReadStreamOptions {
-    core?: Hypercore
-  }
-
-  export interface CreateWriteStreamOptions {
-    core?: Hypercore
+    put(blob: Buffer, opts?: { blockSize?: number }): Promise<number>
+    get(id: BlobId, opts?: { core?: Hypercore }): Promise<Buffer | null>
+    clear(id: BlobId, opts?: { core?: Hypercore }): Promise<void>
+    createReadStream(id: BlobId, opts?: { core?: Hypercore }): Readable
+    createWriteStream(opts?: { core?: Hypercore }): Writable
   }
 }
 

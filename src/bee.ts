@@ -15,10 +15,7 @@ const v1 = hyperbee.version;
 
 // If you own the core
 await hyperbee.put("key1", { value: "value777" }, {
-  cas: (value, oldValue) => {
-    logger.info("cas", value, oldValue);
-    return true
-  }
+  cas: (left, right) => left.value !== right.value,
 });
 await hyperbee.del("key1");
 await hyperbee.put("key3", { value: "valuesss2" });
