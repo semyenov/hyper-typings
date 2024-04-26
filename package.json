@@ -1,0 +1,32 @@
+{
+  "name": "mirror-drive",
+  "module": "index.ts",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "test": "standard --verbose",
+    "format": "standard --fix",
+    "lint": "standard",
+    "start": "node src/index.js"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "consola": "^3.2.3",
+    "corestore": "^6.18.2",
+    "hyperbee": "^2.19.3",
+    "hypercore": "^10.36.3",
+    "hyperdrive": "^11.8.1",
+    "hyperswarm": "^4.7.14",
+    "localdrive": "^1.11.4",
+    "mirror-drive": "^1.3.1",
+    "random-access-memory": "^6.2.1",
+    "standard": "^17.1.0"
+  },
+  "packageManager": "yarn@4.1.1",
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "tsx": "^4.7.3"
+  }
+}
