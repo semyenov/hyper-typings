@@ -3,6 +3,8 @@ declare module 'hyperbee' {
   import ReadyResource from 'ready-resource'
   import { Readable } from 'node:stream';
 
+  import Hypercore from 'hypercore';
+
   export interface HyperbeeOptions {
     keyEncoding?: 'ascii' | 'utf-8' | 'binary';
     valueEncoding?: 'json' | 'utf-8' | 'binary';
@@ -42,11 +44,11 @@ declare module 'hyperbee' {
   }
 
   export default class Hyperbee extends ReadyResource {
-    constructor(core: any, options?: HyperbeeOptions);
+    constructor(core: Hypercore, options?: HyperbeeOptions);
 
-    static isHyperbee(core: any, options?: any): Promise<boolean>;
- 
-    readonly core: any;
+    static isHyperbee(core: Hypercore, options?: any): Promise<boolean>;
+
+    readonly core: Hypercore;
     readonly version: number;
     readonly id: string;
     readonly key: Buffer;
@@ -56,9 +58,9 @@ declare module 'hyperbee' {
 
     ready(): Promise<void>;
     close(): Promise<void>;
-    put<T = any>(key: string, value?: any, options?: { cas?(prev: HyperbeeEntry<T>, next: HyperbeeEntry<T>): boolean }): Promise<void>;
+    put<T>(key: string, value?: T, options?: { cas?(prev: HyperbeeEntry<T>, next: HyperbeeEntry<T>): boolean }): Promise<void>;
     get<T = any>(key: string, options?: { wait?: boolean; update?: boolean; keyEncoding?: string; valueEncoding?: string }): Promise<HyperbeeEntry<T> | null>;
-    del<T = any>(key: string, options?: { cas?(prev: HyperbeeEntry<T>): boolean }): Promise<void>;
+    del<T = any>(key: string, options?: { cas?(prev: HyperbeeEntry<T>, next: HyperbeeEntry<T>): boolean }): Promise<void>;
     getBySeq<T = any>(seq: number, options?: { keyEncoding?: string; valueEncoding?: string }): Promise<HyperbeeEntry<T> | null>;
     replicate(isInitiatorOrStream: boolean): any;
     batch(): HyperbeeWriteBatch;

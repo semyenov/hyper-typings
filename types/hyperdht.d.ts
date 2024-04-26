@@ -9,9 +9,9 @@ declare module 'hyperdht' {
     }
 
     class HyperDHT extends DHT {
-        readonly defaultKeyPair: KeyPair;
-
         constructor(opts?: any);
+
+        readonly defaultKeyPair: KeyPair;
 
         connect(remotePublicKey: Buffer, opts?: any): Promise<any>;
         createServer(opts?: any, onconnection?: any): Server;
