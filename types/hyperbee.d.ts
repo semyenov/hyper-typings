@@ -44,6 +44,8 @@ declare module 'hyperbee' {
   export default class Hyperbee extends ReadyResource {
     constructor(core: any, options?: HyperbeeOptions);
 
+    static isHyperbee(core: any, options?: any): Promise<boolean>;
+ 
     readonly core: any;
     readonly version: number;
     readonly id: string;
@@ -70,6 +72,5 @@ declare module 'hyperbee' {
     snapshot(): Hyperbee;
     sub(prefix: string, options?: { separator?: Buffer; keyEncoding?: string; valueEncoding?: string }): Hyperbee;
     getHeader(options?: any): Promise<any>;
-    static isHyperbee(core: any, options?: any): Promise<boolean>;
   }
 }

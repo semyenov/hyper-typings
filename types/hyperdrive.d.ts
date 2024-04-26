@@ -81,8 +81,8 @@ declare module 'hyperdrive' {
   }
 
   export default class Hyperdrive extends ReadyResource {
+    constructor(corestore: Corestore, options?: HyperdriveOptions);
     constructor(corestore: Corestore, key?: string, options?: HyperdriveOptions);
-    constructor(options: HyperdriveOptions);
 
     readonly corestore: Corestore;
     readonly db: Hyperbee;

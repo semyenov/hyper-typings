@@ -8,6 +8,7 @@ import MirrorDrive from "mirror-drive";
 const logger = consola.withTag("drive");
 
 const corestore = new Corestore(".out/corestore");
+
 const hyperdrive = new Hyperdrive(corestore);
 const localdrive = new Localdrive("./src");
 const mirrordrive = new MirrorDrive(localdrive, hyperdrive);
