@@ -40,21 +40,19 @@ declare module 'mirror-drive' {
     change: number
   }
 
-  export class MirrorDrive {
+  export default class MirrorDrive {
     constructor(src: any, dst: any, opts?: MirrorDriveOptions)
-
     [Symbol.asyncIterator](): AsyncIterator<MirrorDriveDiff>
-
-    done(): Promise<void>
 
     readonly count: MirrorDriveCount
     readonly bytesRemoved: number
     readonly bytesAdded: number
 
+    done(): Promise<void>
+
     private _mirror(): AsyncIterableIterator<MirrorDriveDiff>
 
     private static _list(a: any, b: any, opts?: MirrorDriveListOptions): AsyncIterableIterator<[string, Entry | null, Entry | null]>
-
     private static blobLength(entry: Entry): number
     private static pipeline(rs: any, ws: any): Promise<void>
     private static same(m: MirrorDrive, srcEntry: Entry, dstEntry: Entry): Promise<boolean>
@@ -62,6 +60,4 @@ declare module 'mirror-drive' {
     private static metadataEquals(m: MirrorDrive, srcEntry: Entry, dstEntry: Entry): boolean
     private static noop(): void
   }
-
-  export default MirrorDrive
 }

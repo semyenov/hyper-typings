@@ -21,32 +21,6 @@ declare module 'localdrive' {
     atomic?: boolean
   }
 
-  export class LocalDrive {
-    constructor(root: string, opts?: LocalDriveOptions)
-
-    root: string
-    metadata: MetadataHooks
-    supportsMetadata: boolean
-
-    ready(): Promise<void>
-    close(): Promise<void>
-    flush(): Promise<void>
-    batch(): LocalDrive
-    checkout(): LocalDrive
-    toPath(key: string | { key: string }): string
-    entry(name: string, opts?: { follow?: boolean }): Promise<LocalDriveEntry | null>
-    get(key: string | { key: string }, opts?: ReadStreamOptions): Promise<Buffer | null>
-    put(key: string, buffer: Buffer, opts?: FileWriteStreamOptions): Promise<void>
-    del(key: string | { key: string }): Promise<void>
-    symlink(key: string, linkname: string): Promise<void>
-    compare(a: LocalDriveEntry, b: LocalDriveEntry): -1 | 0 | 1
-    list(folder?: string): AsyncIterableIterator<LocalDriveEntry>
-    readdir(folder?: string): AsyncIterableIterator<string>
-    mirror(out: any, opts?: any): any
-    createReadStream(key: string | { key: string }, opts?: ReadStreamOptions): FileReadStream
-    createWriteStream(key: string, opts?: FileWriteStreamOptions): FileWriteStream
-  }
-
   export interface LocalDriveEntry {
     key: string
     value: {
@@ -66,6 +40,30 @@ declare module 'localdrive' {
     constructor(filename: string, key: string, drive: LocalDrive, opts?: FileWriteStreamOptions)
   }
 
-  export default LocalDrive
+  export default class LocalDrive {
+    constructor(root: string, opts?: LocalDriveOptions)
+
+    readonly root: string
+    readonly metadata: MetadataHooks
+    readonly supportsMetadata: boolean
+
+    ready(): Promise<void>
+    close(): Promise<void>
+    flush(): Promise<void>
+    batch(): LocalDrive
+    checkout(): LocalDrive
+    toPath(key: string | { key: string }): string
+    entry(name: string, opts?: { follow?: boolean }): Promise<LocalDriveEntry | null>
+    get(key: string | { key: string }, opts?: ReadStreamOptions): Promise<Buffer | null>
+    put(key: string, buffer: Buffer, opts?: FileWriteStreamOptions): Promise<void>
+    del(key: string | { key: string }): Promise<void>
+    symlink(key: string, linkname: string): Promise<void>
+    compare(a: LocalDriveEntry, b: LocalDriveEntry): -1 | 0 | 1
+    list(folder?: string): AsyncIterableIterator<LocalDriveEntry>
+    readdir(folder?: string): AsyncIterableIterator<string>
+    mirror(out: any, opts?: any): any
+    createReadStream(key: string | { key: string }, opts?: ReadStreamOptions): FileReadStream
+    createWriteStream(key: string, opts?: FileWriteStreamOptions): FileWriteStream
+  }
 }
 

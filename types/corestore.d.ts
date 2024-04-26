@@ -18,7 +18,7 @@ declare module 'corestore' {
     namespace?: Buffer;
   }
 
-  export class Corestore extends ReadyResource {
+  export default class Corestore extends ReadyResource {
     constructor(storage: RandomAccessStorage | string | ((path: string) => RandomAccessStorage), options?: CorestoreOptions);
 
     get(key: Buffer | { key: Buffer | string, name?: string, exclusive?: boolean, [options: string]: any }): Hypercore;
@@ -26,6 +26,4 @@ declare module 'corestore' {
     namespace(name: string): Corestore;
     session(options?: CorestoreSessionOptions): Corestore;
   }
-
-  export default Corestore;
 }

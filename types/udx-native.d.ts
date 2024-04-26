@@ -18,11 +18,13 @@ declare module 'udx-native' {
 
   export class UDXSocket {
     constructor(udx: UDX);
-    userData: any;
-    isBound: boolean;
-    isClosed: boolean;
-    isIdle: boolean;
-    isBusy: boolean;
+
+    readonly userData: any;
+    readonly isBound: boolean;
+    readonly isClosed: boolean;
+    readonly isIdle: boolean;
+    readonly isBusy: boolean;
+
     address: { host: string, family: 4 | 6, port: number };
     bind(port?: number, host?: string): Promise<void>;
     unbind(): void;
@@ -65,7 +67,6 @@ declare module 'udx-native' {
   }
 
   export default class UDX {
-    constructor();
     createSocket(options?: { ipv6Only?: boolean }): UDXSocket;
     createStream(id?: number, options?: UDXStreamOptions): UDXStream;
     isIPv4(host: string): boolean;

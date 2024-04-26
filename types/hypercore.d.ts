@@ -1,6 +1,9 @@
 declare module 'hypercore' {
   import { Buffer } from 'node:buffer';
   import { Readable } from 'node:stream';
+  import Hypercore from 'hypercore';
+
+  type Storage = string | ((filename: string) => any);
 
   export interface ReadStreamOptions {
     start?: number;
@@ -8,18 +11,6 @@ declare module 'hypercore' {
     snapshot?: boolean;
     live?: boolean;
   }
-
-  declare class ReadStream<T = any> extends Readable<T> {
-    constructor(core: any, opts?: ReadStreamOptions);
-
-    readonly core: any;
-    readonly start: number;
-    readonly end: number;
-    readonly snapshot: boolean;
-    readonly live: boolean;
-  }
-
-  type Storage = string | ((filename: string) => any);
 
   export interface HypercoreOptions {
     createIfMissing?: boolean;
@@ -35,7 +26,19 @@ declare module 'hypercore' {
     valueEncoding?: any; // abstract-encoding or compact-encoding instance
   }
 
+  export class ReadStream<T = any> extends Readable<T> {
+    constructor(core: Hypercore, opts?: ReadStreamOptions);
+
+    readonly core: Hypercore;
+    readonly start: number;
+    readonly end: number;
+    readonly snapshot: boolean;
+    readonly live: boolean;
+  }
+
   export default class Hypercore {
+    constructor(storage: Storage, key?: Buffer | string, options?: HypercoreOptions);
+
     readonly id: string;
     readonly key: Buffer;
     readonly keyPair: { publicKey: Buffer, secretKey: Buffer };
@@ -47,8 +50,6 @@ declare module 'hypercore' {
     readonly contiguousLength: number;
     readonly fork: number;
     readonly padding: number;
-
-    constructor(storage: Storage, key?: Buffer | string, options?: HypercoreOptions);
 
     append(block: Buffer | Buffer[]): Promise<{ length: number, byteLength: number }>;
     get(index: number, options?: { timeout?: number, wait?: boolean }): Promise<Buffer>;

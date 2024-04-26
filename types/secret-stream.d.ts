@@ -23,9 +23,9 @@ declare module '@hyperswarm/secret-stream' {
   export interface Handshake {
     constructor(isInitiator: boolean, keyPair: KeyPair, remotePublicKey?: Buffer, pattern?: string)
 
-    static keyPair: KeyPair
-    static isInitiator: boolean
-    static noise: Noise
+    readonly keyPair: KeyPair
+    readonly isInitiator: boolean
+    readonly noise: Noise
 
     recv(data: Buffer): HandshakeResult
     send(): HandshakeResult
@@ -47,22 +47,21 @@ declare module '@hyperswarm/secret-stream' {
     static keyPair(seed?: Buffer): KeyPair
     static id(handshakeHash: Buffer, isInitiator: boolean, id?: Buffer): Buffer
 
-    public noiseStream: NoiseSecretStream
-    public isInitiator: boolean
-    public rawStream: UDXStream
-    public publicKey: Buffer
-    public remotePublicKey: Buffer
-    public handshakeHash: Buffer
-    public connected: boolean
-    public keepAlive: number
-    public timeout: number
-    public destroyed: boolean
+    readonly noiseStream: NoiseSecretStream
+    readonly isInitiator: boolean
+    readonly rawStream: UDXStream
+    readonly publicKey: Buffer
+    readonly remotePublicKey: Buffer
+    readonly handshakeHash: Buffer
+    readonly connected: boolean
+    readonly keepAlive: number
+    readonly timeout: number
+    readonly destroyed: boolean
 
     setTimeout(ms: number): void
     setKeepAlive(ms: number): void
     start(rawStream?: UDXStream, opts?: NoiseSecretStreamOptions): void
     flush(): Promise<boolean>
-
     alloc(len: number): Buffer
     toJSON(): object
   }

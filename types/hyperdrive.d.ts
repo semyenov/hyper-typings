@@ -80,7 +80,10 @@ declare module 'hyperdrive' {
     wait?: boolean;
   }
 
-  class Hyperdrive extends ReadyResource {
+  export default class Hyperdrive extends ReadyResource {
+    constructor(corestore: Corestore, key?: string, options?: HyperdriveOptions);
+    constructor(options: HyperdriveOptions);
+
     readonly corestore: Corestore;
     readonly db: Hyperbee;
     readonly core: Hypercore;
@@ -92,9 +95,6 @@ declare module 'hyperdrive' {
     readonly contentKey: string;
     readonly version: number;
     readonly supportsMetadata: boolean;
-
-    constructor(corestore: Corestore, key?: string, options?: HyperdriveOptions);
-    constructor(options: HyperdriveOptions);
 
     ready(): Promise<void>;
     close(): Promise<void>;
@@ -126,6 +126,4 @@ declare module 'hyperdrive' {
     update(options?: HyperdriveUpdateOptions): Promise<boolean>;
     getBlobs(): Promise<Hyperblobs>;
   }
-
-  export = Hyperdrive;
 }

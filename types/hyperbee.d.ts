@@ -3,44 +3,54 @@ declare module 'hyperbee' {
   import ReadyResource from 'ready-resource'
   import { Readable } from 'node:stream';
 
-  interface HyperbeeOptions {
+  export interface HyperbeeOptions {
     keyEncoding?: 'ascii' | 'utf-8' | 'binary';
     valueEncoding?: 'json' | 'utf-8' | 'binary';
   }
 
-  interface HyperbeeEntry<T = unknown> {
+  export interface HyperbeeEntry<T = unknown> {
     seq: number;
     key: string;
     value: T;
   }
 
-  interface HyperbeeRange {
+  export interface HyperbeeRange {
     gt?: string;
     gte?: string;
     lt?: string;
     lte?: string;
   }
 
-  interface HyperbeeWatcherOptions extends HyperbeeRange {
+  export interface HyperbeeWatcherOptions extends HyperbeeRange {
     keyEncoding?: 'ascii' | 'utf-8' | 'binary';
     valueEncoding?: 'json' | 'utf-8' | 'binary';
   }
 
-  interface HyperbeeWatcher<T = any> {
+  export interface HyperbeeWatcher<T = any> {
     node: HyperbeeEntry<T>;
     on(event: 'update', listener: () => void): this;
     close(): Promise<void>;
   }
 
-  class Hyperbee extends ReadyResource {
+  export interface HyperbeeWriteBatch {
+    put<T = any>(key: string, value?: any, options?: { cas?(prev: HyperbeeEntry<T>, next: HyperbeeEntry<T>): boolean }): Promise<void>;
+    get<T = any>(key: string, options?: { keyEncoding?: string; valueEncoding?: string }): Promise<HyperbeeEntry<T> | null>;
+    del<T = any>(key: string, options?: { cas?(prev: HyperbeeEntry<T>): boolean }): Promise<void>;
+    flush(): Promise<void>;
+    close(): Promise<void>;
+    lock(): Promise<void>;
+  }
+
+  export default class Hyperbee extends ReadyResource {
     constructor(core: any, options?: HyperbeeOptions);
-    core: any;
-    version: number;
-    id: string;
-    key: Buffer;
-    discoveryKey: Buffer;
-    writable: boolean;
-    readable: boolean;
+
+    readonly core: any;
+    readonly version: number;
+    readonly id: string;
+    readonly key: Buffer;
+    readonly discoveryKey: Buffer;
+    readonly writable: boolean;
+    readonly readable: boolean;
 
     ready(): Promise<void>;
     close(): Promise<void>;
@@ -62,16 +72,4 @@ declare module 'hyperbee' {
     getHeader(options?: any): Promise<any>;
     static isHyperbee(core: any, options?: any): Promise<boolean>;
   }
-
-  interface HyperbeeWriteBatch {
-    put<T = any>(key: string, value?: any, options?: { cas?(prev: HyperbeeEntry<T>, next: HyperbeeEntry<T>): boolean }): Promise<void>;
-    get<T = any>(key: string, options?: { keyEncoding?: string; valueEncoding?: string }): Promise<HyperbeeEntry<T> | null>;
-    del<T = any>(key: string, options?: { cas?(prev: HyperbeeEntry<T>): boolean }): Promise<void>;
-    flush(): Promise<void>;
-    close(): Promise<void>;
-    lock(): Promise<void>;
-  }
-
-  export = Hyperbee;
 }
-
