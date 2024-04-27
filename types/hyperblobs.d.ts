@@ -1,6 +1,8 @@
 
 declare module 'hyperblobs' {
-  import { ReadableStream, Writable } from 'streamx'
+  import { Buffer } from 'buffer'
+  import { Readable, Writable } from 'stream'
+  
   import Hypercore from 'hypercore'
 
   export const DEFAULT_BLOCK_SIZE = 2 ** 16
@@ -23,7 +25,7 @@ declare module 'hyperblobs' {
     put(blob: Buffer, opts?: { blockSize?: number }): Promise<number>
     get(id: BlobId, opts?: { core?: Hypercore }): Promise<Buffer | null>
     clear(id: BlobId, opts?: { core?: Hypercore }): Promise<void>
-    createReadStream(id: BlobId, opts?: { core?: Hypercore }): ReadableStream
+    createReadStream(id: BlobId, opts?: { core?: Hypercore }): Readable
     createWriteStream(opts?: { core?: Hypercore }): Writable
   }
 }

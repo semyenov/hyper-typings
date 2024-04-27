@@ -1,20 +1,30 @@
-import globals from "globals";
+/* eslint-disable */
+import globals from 'globals';
 
-import path from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
-import pluginJs from "@eslint/js";
+import path from 'path';
+import {fileURLToPath} from 'url';
+import {FlatCompat} from '@eslint/eslintrc';
+import pluginJs from '@typescript-eslint/eslint-plugin';
 
 // mimic CommonJS variables -- not needed if using CommonJS
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: pluginJs.configs.recommended,
+	extends: 'eslint:recommended',
+	baseDirectory: __dirname,
+	recommendedConfig: {
+		...pluginJs.configs.recommended,
+		rules: {
+			...pluginJs.configs.recommended.rules,
+			'@typescript-eslint/naming-convention': 'off',
+			'@typescript-eslint/indent': ['off', 2],
+			'indent': ['error', 2],
+		},
+	},
 });
 
 export default [
-  { files: ["**/*.js"], languageOptions: { sourceType: "script" } },
-  { languageOptions: { globals: globals.browser } },
-  ...compat.extends("xo-typescript"),
+	{files: ['**/*.ts'], languageOptions: {sourceType: 'script'}},
+	{languageOptions: {globals: globals.browser}},
+	...compat.extends('xo-typescript'),
 ];

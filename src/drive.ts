@@ -1,32 +1,32 @@
-import consola from "consola";
+import consola from 'consola';
 
-import Corestore from "corestore";
-import Hyperdrive from "hyperdrive";
-import Localdrive from "localdrive";
-import MirrorDrive from "mirror-drive";
+import Corestore from 'corestore';
+import Hyperdrive from 'hyperdrive';
+import Localdrive from 'localdrive';
+import MirrorDrive from 'mirror-drive';
 
-const logger = consola.withTag("drive");
+const logger = consola.withTag('drive');
 
-const corestore = new Corestore(".out/corestore");
+const corestore = new Corestore('.out/corestore');
 
 const replicateStream = corestore.replicate(true, {
-  live: true,
-  download: true,
-  upload: true,
-  encrypt: true,
-  ondiscoverykey: (discoveryKey) => {
-    logger.info("discoveryKey", discoveryKey);
-  },
-})
+	live: true,
+	download: true,
+	upload: true,
+	encrypt: true,
+	ondiscoverykey: (discoveryKey) => {
+		logger.info('discoveryKey', discoveryKey);
+	},
+});
 
 logger.info(replicateStream);
 
 const hyperdrive = new Hyperdrive(corestore);
-const localdrive = new Localdrive("./src");
+const localdrive = new Localdrive('./src');
 const mirrordrive = new MirrorDrive(localdrive, hyperdrive);
 
 logger.info(mirrordrive.count); // => { files: 0, add: 0, remove: 0, change: 0 }
 
 for await (const diff of mirrordrive) {
-  logger.info(diff);
+	logger.info(diff);
 }

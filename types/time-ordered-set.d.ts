@@ -1,21 +1,21 @@
 declare module 'time-ordered-set' {
 
-  export class TimeOrderedSetItem<T = any> extends T {
-    prev: TimeOrderedSetItem | null;
-    next: TimeOrderedSetItem | null;
-  }
+	export class TimeOrderedSetItem<T = any> extends T {
+		prev: TimeOrderedSetItem | undefined;
+		next: TimeOrderedSetItem | undefined;
+	}
 
-  export default class TimeOrderedSet {
-    oldest: TimeOrderedSetItem | null;
-    latest: TimeOrderedSetItem | null;
-    length: number;
+	export default class TimeOrderedSet {
+		oldest: TimeOrderedSetItem | undefined;
+		latest: TimeOrderedSetItem | undefined;
+		length: number;
 
-    constructor();
+		constructor();
 
-    has(node: TimeOrderedSetItem): boolean;
-    add<T>(node: T): TimeOrderedSetItem<T>;
-    remove<T>(node: T): TimeOrderedSetItem<T>;
-    toArray<T = any>(pick?: number): TimeOrderedSetItem<T>[];
-  }
+		has(node: TimeOrderedSetItem): boolean;
+		add<T>(node: T): TimeOrderedSetItem<T>;
+		remove<T>(node: T): TimeOrderedSetItem<T>;
+		toArray<T = any>(pick?: number): Array<TimeOrderedSetItem<T>>;
+	}
 }
 

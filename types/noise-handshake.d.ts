@@ -1,69 +1,75 @@
 declare module 'noise-handshake' {
-  import { Buffer } from 'buffer';
-
-  interface KeyPair {
-    publicKey: Buffer;
-    secretKey: Buffer;
-  }
+  type KeyPair = {
+  	publicKey: Uint8Array;
+  	secretKey: Uint8Array;
+  };
 
   export class CipherState {
-    constructor(key?: Buffer);
+  	static readonly MACBYTES: number;
+  	static readonly NONCEBYTES: number;
+  	static readonly KEYBYTES: number;
 
-    readonly key: Buffer | null;
-    readonly nonce: number;
-    readonly CIPHER_ALG: string;
+  	constructor(key?: Uint8Array);
 
-    initialiseKey(key: Buffer): void;
-    setNonce(nonce: number): void;
-    encrypt(plaintext: Buffer, ad?: Buffer): Buffer;
-    decrypt(ciphertext: Buffer, ad?: Buffer): Buffer;
-    get hasKey(): boolean;
+  	readonly key: Uint8Array | undefined;
+  	readonly nonce: number;
+  	readonly CIPHER_ALG: string;
 
-    static readonly MACBYTES: number;
-    static readonly NONCEBYTES: number;
-    static readonly KEYBYTES: number;
+  	initialiseKey(key: Uint8Array): void;
+  	setNonce(nonce: number): void;
+  	encrypt(plaintext: Uint8Array, ad?: Uint8Array): Uint8Array;
+  	decrypt(ciphertext: Uint8Array, ad?: Uint8Array): Uint8Array;
+  	get hasKey(): boolean;
   }
 
   export class SymmetricState extends CipherState {
-    constructor(opts?: any);
+  	constructor(opts?: any);
 
-    readonly curve: any; // Assuming 'curve' is an instance of a curve implementation
-    readonly digest: Buffer;
-    readonly chainingKey: Buffer | null;
-    readonly offset: number;
-    readonly DH_ALG: string;
+  	readonly curve: any; // Assuming 'curve' is an instance of a curve implementation
+  	readonly digest: Uint8Array;
+  	readonly chainingKey: Uint8Array | undefined;
+  	readonly offset: number;
+  	readonly DH_ALG: string;
 
-    mixHash(data: Buffer): void;
-    mixKeyAndHash(key: Buffer): void;
-    mixKeyNormal(key: Buffer): void;
-    mixKey(remoteKey: Buffer, localKey: Buffer): void;
-    encryptAndHash(plaintext: Buffer): Buffer;
-    decryptAndHash(ciphertext: Buffer): Buffer;
-    getHandshakeHash(out?: Buffer): Buffer;
-    split(): [Buffer, Buffer];
+  	mixHash(data: Uint8Array): void;
+  	mixKeyAndHash(key: Uint8Array): void;
+  	mixKeyNormal(key: Uint8Array): void;
+  	mixKey(remoteKey: Uint8Array, localKey: Uint8Array): void;
+  	encryptAndHash(plaintext: Uint8Array): Uint8Array;
+  	decryptAndHash(ciphertext: Uint8Array): Uint8Array;
+  	getHandshakeHash(out?: Uint8Array): Uint8Array;
+  	split(): [Uint8Array, Uint8Array];
   }
 
   export default class NoiseState extends SymmetricState {
-    constructor(pattern: string, initiator: boolean, staticKeypair: KeyPair, opts?: any);
+  	constructor(
+  		pattern: string,
+  		initiator: boolean,
+  		staticKeypair: KeyPair,
+  		opts?: any
+  	);
 
-    readonly s: KeyPair;
-    readonly e: KeyPair | null;
-    readonly rs: Buffer | null;
-    readonly re: Buffer | null;
-    readonly psk: Buffer | null;
-    readonly pattern: string;
-    readonly handshake: any[]; // Array of symbols representing handshake steps
-    readonly isPskHandshake: boolean;
-    readonly protocol: Buffer;
-    readonly initiator: boolean;
-    readonly complete: boolean;
-    readonly rx: Buffer | null;
-    readonly tx: Buffer | null;
-    readonly hash: Buffer | null;
+  	readonly s: KeyPair;
+  	readonly e: KeyPair | undefined;
+  	readonly rs: Uint8Array | undefined;
+  	readonly re: Uint8Array | undefined;
+  	readonly psk: Uint8Array | undefined;
+  	readonly pattern: string;
+  	readonly handshake: any[]; // Array of symbols representing handshake steps
+  	readonly isPskHandshake: boolean;
+  	readonly protocol: Uint8Array;
+  	readonly initiator: boolean;
+  	readonly complete: boolean;
+  	readonly rx: Uint8Array | undefined;
+  	readonly tx: Uint8Array | undefined;
+  	readonly hash: Uint8Array | undefined;
 
-    initialise(prologue: Buffer, remoteStatic: Buffer | null): void;
-    final(): void;
-    recv(buf: Buffer): Buffer | null;
-    send(payload?: Buffer): Buffer;
+  	initialise(
+  		prologue: Uint8Array,
+  		remoteStatic: Uint8Array | undefined
+  	): void;
+  	final(): void;
+  	recv(buf: Uint8Array): Uint8Array | undefined;
+  	send(payload?: Uint8Array): Uint8Array;
   }
 }

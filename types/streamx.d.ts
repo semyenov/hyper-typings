@@ -1,3 +1,4 @@
+
 declare module 'streamx' {
   import { EventEmitter } from 'events';
 
@@ -12,9 +13,11 @@ declare module 'streamx' {
   export const DESTROYED = 4;
 
   // Classes
-  export interface Stream extends EventEmitter { }
+  export interface Stream<T = unknown> extends EventEmitter {
+    [Symbol.asyncIterator](): AsyncIterableIterator<T>;
+  }
 
-  export interface ReadableStream<T = unknown> extends Stream {
+  export interface ReadableStream<T = unknown> extends Stream<T> {
     read(): T | null;
     push(chunk: T): boolean;
     end(): void;
@@ -24,12 +27,12 @@ declare module 'streamx' {
   }
 
 
-  export class Writable<T = unknown> extends Stream {
+  export class Writable<T = unknown> extends Readable<T> {
     write(data: any): boolean;
     end(data?: any): this;
   }
 
-  export class Duplex<T = unknown> extends ReadableStream<T>, Writable<T> { }
+  export class Duplex<T = unknown> extends Readable<T>, Writable<T> { }
 
   export class Transform extends Duplex { }
   export class PassThrough extends Transform { }

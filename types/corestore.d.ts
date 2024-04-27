@@ -1,61 +1,62 @@
 // corestore.d.ts
 
 declare module 'corestore' {
-  import { EventEmitter } from 'events';
-  import Hypercore from 'hypercore';
+	import {EventEmitter} from 'events';
+	import {type Stream} from 'stream';
 
-  export default class Corestore extends EventEmitter {
-    constructor(storage: Storage, opts?: CorestoreOptions);
-    ready(): Promise<void>;
-    get(opts?: GetOptions): Hypercore;
-    replicate(isInitiator: boolean | Stream, opts?: ReplicateOptions): Stream;
-    namespace(name: string, opts?: NamespaceOptions): Corestore;
-    session(opts?: SessionOptions): Corestore;
-    close(): Promise<void>;
-  }
+	import type Hypercore from 'hypercore';
 
-  export interface CorestoreOptions {
-    cache?: boolean;
-    primaryKey?: Buffer;
-    passive?: boolean;
-    manifestVersion?: number;
-    compat?: boolean;
-    inflightRange?: number;
-  }
+	export default class Corestore extends EventEmitter {
+		constructor(storage: Storage, opts?: CorestoreOptions);
+		ready(): Promise<void>;
+		get(opts?: GetOptions): Hypercore;
+		replicate(isInitiator: boolean | Stream, opts?: ReplicateOptions): Stream;
+		namespace(name: string, opts?: NamespaceOptions): Corestore;
+		session(opts?: SessionOptions): Corestore;
+		close(): Promise<void>;
+	}
 
-  export interface GetOptions {
-    key?: Buffer;
-    name?: string;
-    secretKey?: Buffer;
-    publicKey?: Buffer;
-    manifest?: any;
-    preload?: () => Promise<any>;
-    cache?: boolean;
-    writable?: boolean;
-    exclusive?: boolean;
-    isBlockKey?: boolean;
-    createIfMissing?: boolean;
-  }
+	export type CorestoreOptions = {
+		cache?: boolean;
+		primaryKey?: Buffer;
+		passive?: boolean;
+		manifestVersion?: number;
+		compat?: boolean;
+		inflightRange?: number;
+	};
 
-  export interface ReplicateOptions {
-    live?: boolean;
-    download?: boolean;
-    upload?: boolean;
-    encrypt?: boolean;
-    ondiscoverykey?: (discoveryKey: Buffer) => void;
-  }
+	export type GetOptions = {
+		key?: Buffer;
+		name?: string;
+		secretKey?: Buffer;
+		publicKey?: Buffer;
+		manifest?: any;
+		preload?: () => Promise<any>;
+		cache?: boolean;
+		writable?: boolean;
+		exclusive?: boolean;
+		isBlockKey?: boolean;
+		createIfMissing?: boolean;
+	};
 
-  export interface NamespaceOptions {
-    namespace?: Buffer;
-    cache?: boolean;
-    writable?: boolean;
-    inflightRange?: number;
-  }
+	export type ReplicateOptions = {
+		live?: boolean;
+		download?: boolean;
+		upload?: boolean;
+		encrypt?: boolean;
+		ondiscoverykey?: (discoveryKey: Buffer) => void;
+	};
 
-  export interface SessionOptions extends NamespaceOptions {
-    detach?: boolean;
-  }
+	export type NamespaceOptions = {
+		namespace?: Buffer;
+		cache?: boolean;
+		writable?: boolean;
+		inflightRange?: number;
+	};
 
-  export type Storage = ((path: string) => any) | string | Hypercore;
-  export type Stream = any; // This should be replaced with the actual type of the stream
+	export type SessionOptions = {
+		detach?: boolean;
+	} & NamespaceOptions;
+
+	export type Storage = ((path: string) => any) | string | Hypercore;
 }
