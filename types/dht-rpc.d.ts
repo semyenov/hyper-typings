@@ -1,8 +1,8 @@
 
 declare module 'dht-rpc' {
-  import { EventEmitter } from 'node:events'
-  import { Buffer } from 'node:buffer'
-  import { Readable } from 'node:stream'
+  import { EventEmitter } from 'events'
+  import { Buffer } from 'buffer'
+  import { ReadableStream } from 'streamx'
 
   import RoutingTable from 'kademlia-routing-table';
   import TOS from 'time-ordered-set'
@@ -235,7 +235,7 @@ declare module 'dht-rpc' {
     destroy(err?: Error): void;
   }
 
-  export class Query extends Readable {
+  export class Query extends ReadableStream {
     constructor(dht: DHT, target: Buffer, internal: boolean, command: number, value: Buffer | null, opts?: QueryOptions);
 
     // Properties

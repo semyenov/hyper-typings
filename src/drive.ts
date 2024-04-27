@@ -9,6 +9,18 @@ const logger = consola.withTag("drive");
 
 const corestore = new Corestore(".out/corestore");
 
+const replicateStream = corestore.replicate(true, {
+  live: true,
+  download: true,
+  upload: true,
+  encrypt: true,
+  ondiscoverykey: (discoveryKey) => {
+    logger.info("discoveryKey", discoveryKey);
+  },
+})
+
+logger.info(replicateStream);
+
 const hyperdrive = new Hyperdrive(corestore);
 const localdrive = new Localdrive("./src");
 const mirrordrive = new MirrorDrive(localdrive, hyperdrive);

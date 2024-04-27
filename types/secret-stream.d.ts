@@ -1,7 +1,7 @@
 
 declare module '@hyperswarm/secret-stream' {
-  import { Buffer } from 'node:buffer'
-  import { Duplex } from 'node:stream'
+  import { Buffer } from 'buffer'
+  import { Duplex } from 'streamx'
 
   import { UDXStream } from 'udx-native'
   import Noise from 'noise-handshake';

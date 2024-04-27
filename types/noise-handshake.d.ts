@@ -1,5 +1,5 @@
 declare module 'noise-handshake' {
-  import { Buffer } from 'node:buffer';
+  import { Buffer } from 'buffer';
 
   interface KeyPair {
     publicKey: Buffer;

@@ -1,6 +1,6 @@
 declare module 'kademlia-routing-table' {
-  import { EventEmitter } from 'node:events';
-  import { Buffer } from 'node:buffer';
+  import { EventEmitter } from 'events';
+  import { Buffer } from 'buffer';
 
   export class RoutingTable {
     readonly id: Buffer;

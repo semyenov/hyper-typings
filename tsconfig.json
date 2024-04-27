@@ -1,14 +1,13 @@
 {
   "compilerOptions": {
-    "lib": ["ESNext"],
+    "lib": ["ESNext", "Decorators"],
     "target": "ESNext",
     "module": "ESNext",
     "moduleDetection": "force",
-    "jsx": "react-jsx",
     "allowJs": true,
 
     /* Bundler mode */
-    "moduleResolution": "bundler",
+    "moduleResolution": "Node",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,
@@ -19,6 +18,13 @@
     "esModuleInterop": true,
     "allowUmdGlobalAccess": true,
     "allowUnusedLabels": true,
+    "typeRoots": [
+      "node_modules/@types",
+      "types"
+    ],
+    "types": [
+      "node",
+    ],
 
     /* Linting */
     "skipLibCheck": true,

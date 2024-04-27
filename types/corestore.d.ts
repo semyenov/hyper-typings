@@ -1,29 +1,61 @@
+// corestore.d.ts
+
 declare module 'corestore' {
-  import { Buffer } from 'node:buffer';
-  import { RandomAccessStorage } from 'random-access-storage';
-  import ReadyResource from 'ready-resource';
+  import { EventEmitter } from 'events';
   import Hypercore from 'hypercore';
 
-  // Define the Corestore options interfaces
+  export default class Corestore extends EventEmitter {
+    constructor(storage: Storage, opts?: CorestoreOptions);
+    ready(): Promise<void>;
+    get(opts?: GetOptions): Hypercore;
+    replicate(isInitiator: boolean | Stream, opts?: ReplicateOptions): Stream;
+    namespace(name: string, opts?: NamespaceOptions): Corestore;
+    session(opts?: SessionOptions): Corestore;
+    close(): Promise<void>;
+  }
+
   export interface CorestoreOptions {
+    cache?: boolean;
     primaryKey?: Buffer;
+    passive?: boolean;
+    manifestVersion?: number;
+    compat?: boolean;
+    inflightRange?: number;
   }
 
-  export interface CorestoreReplicationOptions {
-    // Define replication options here
+  export interface GetOptions {
+    key?: Buffer;
+    name?: string;
+    secretKey?: Buffer;
+    publicKey?: Buffer;
+    manifest?: any;
+    preload?: () => Promise<any>;
+    cache?: boolean;
+    writable?: boolean;
+    exclusive?: boolean;
+    isBlockKey?: boolean;
+    createIfMissing?: boolean;
   }
 
-  export interface CorestoreSessionOptions {
-    primaryKey?: Buffer;
+  export interface ReplicateOptions {
+    live?: boolean;
+    download?: boolean;
+    upload?: boolean;
+    encrypt?: boolean;
+    ondiscoverykey?: (discoveryKey: Buffer) => void;
+  }
+
+  export interface NamespaceOptions {
     namespace?: Buffer;
+    cache?: boolean;
+    writable?: boolean;
+    inflightRange?: number;
   }
 
-  export default class Corestore extends ReadyResource {
-    constructor(storage: RandomAccessStorage | string | ((path: string) => RandomAccessStorage), options?: CorestoreOptions);
-
-    get(key: Buffer | { key: Buffer | string, name?: string, exclusive?: boolean, [options: string]: any }): Hypercore;
-    replicate(options: CorestoreReplicationOptions | any): any;
-    namespace(name: string): Corestore;
-    session(options?: CorestoreSessionOptions): Corestore;
+  export interface SessionOptions extends NamespaceOptions {
+    detach?: boolean;
   }
+
+  export type Storage = ((path: string) => any) | string | Hypercore;
+  export type Stream = any; // This should be replaced with the actual type of the stream
 }

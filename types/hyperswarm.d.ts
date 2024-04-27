@@ -1,8 +1,8 @@
 
 declare module 'hyperswarm' {
-  import { Buffer } from 'node:buffer';
-  import { EventEmitter } from 'node:events';
-  import { Readable } from 'node:stream';
+  import { Buffer } from 'buffer';
+  import { EventEmitter } from 'events';
+  import { ReadableStream } from 'streamx';
 
   import { NoiseSecretStream } from '@hyperswarm/secret-stream';
   import DHT from 'dht-rpc';

@@ -1,6 +1,6 @@
 declare module 'hypercore' {
-  import { Buffer } from 'node:buffer';
-  import { Readable } from 'node:stream';
+  import { Buffer } from 'buffer';
+  import { ReadableStream } from 'streamx';
   import Hypercore from 'hypercore';
 
   type Storage = string | ((filename: string) => any);
@@ -26,7 +26,7 @@ declare module 'hypercore' {
     valueEncoding?: any; // abstract-encoding or compact-encoding instance
   }
 
-  export class ReadStream<T = any> extends Readable<T> {
+  export class ReadStream<T = any> extends ReadableStream<T> {
     constructor(core: Hypercore, opts?: ReadStreamOptions);
 
     readonly core: Hypercore;
@@ -56,8 +56,8 @@ declare module 'hypercore' {
     has(start: number, end?: number): Promise<boolean>;
     update(options?: { wait?: boolean }): Promise<boolean>;
     seek(byteOffset: number, options?: { wait?: boolean, timeout?: number }): Promise<[number, number]>;
-    createReadStream(options?: { start?: number, end?: number, realtime?: boolean, autoEnd?: boolean }): Readable; // Readable Stream
-    createByteStream(options?: { byteOffset?: number, byteLength?: number, blocks?: number, linear?: boolean }): Readable; // Readable Stream
+    createReadStream(options?: { start?: number, end?: number, realtime?: boolean, autoEnd?: boolean }): ReadableStream; // Readable Stream
+    createByteStream(options?: { byteOffset?: number, byteLength?: number, blocks?: number, linear?: boolean }): ReadableStream; // Readable Stream
     clear(start: number, end?: number, options?: { returned?: boolean }): Promise<void>;
     truncate(newLength: number, forkId?: number): Promise<void>;
     purge(): Promise<void>;

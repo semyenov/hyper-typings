@@ -1,6 +1,6 @@
 declare module 'hyperdht' {
-    import { EventEmitter } from 'node:events';
-    import { Buffer } from 'node:buffer';
+    import { EventEmitter } from 'events';
+    import { Buffer } from 'buffer';
     import DHT from 'dht-rpc';
 
     interface KeyPair {
