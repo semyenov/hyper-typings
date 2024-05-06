@@ -1,4 +1,6 @@
 declare module 'localdrive' {
+  import { ReadStream, WriteStream } from 'fs'
+
   export interface ReadStreamOptions {
     start?: number
     end?: number
@@ -32,11 +34,11 @@ declare module 'localdrive' {
     mtime: number
   }
 
-  export class FileReadStream extends fs.ReadStream {
+  export class FileReadStream extends ReadStream {
     constructor(filename: string, opts?: ReadStreamOptions)
   }
 
-  export class FileWriteStream extends fs.WriteStream {
+  export class FileWriteStream extends WriteStream {
     constructor(filename: string, key: string, drive: LocalDrive, opts?: FileWriteStreamOptions)
   }
 

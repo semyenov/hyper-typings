@@ -26,7 +26,11 @@
   },
   "packageManager": "yarn@4.1.1",
   "devDependencies": {
+    "@sozdev/eslint-config": "^0.0.11",
+    "@stylistic/eslint-plugin-ts": "^1.7.2",
     "@types/node": "^20.12.7",
-    "tsx": "^4.7.3"
+    "eslint": "^9.1.1",
+    "tsx": "^4.7.3",
+    "typescript": "^5.4.5"
   }
 }

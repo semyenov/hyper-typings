@@ -1,5 +1,5 @@
 declare module 'streamx' {
-  export * from 'node:stream';
+  export * from 'stream';
 
   export function pipeline(...streams: any[]): Promise<void>;
   export function pipelinePromise(...streams: any[]): Promise<void>;

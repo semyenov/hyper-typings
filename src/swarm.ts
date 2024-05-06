@@ -1,8 +1,8 @@
 import { Buffer } from 'node:buffer'
 
-import consola from 'consola';
 import Hyperswarm from 'hyperswarm'
 
+import consola from 'consola';
 const logger = consola.withTag("swarm");
 
 const swarm1 = new Hyperswarm()

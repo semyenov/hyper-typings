@@ -1,6 +1,6 @@
 
 declare module 'hyperblobs' {
-  import { Readable, Writable } from 'node:stream'
+  import { Readable, Writable } from 'stream'
   import Hypercore from 'hypercore'
 
   export const DEFAULT_BLOCK_SIZE = 2 ** 16
@@ -15,7 +15,9 @@ declare module 'hyperblobs' {
   }
 
   export default class Hyperblobs {
-    constructor(public readonly core: Hypercore, opts?: HyperblobsOptions)
+    constructor( core: Hypercore, opts?: HyperblobsOptions)
+
+    public readonly core: Hypercore
 
     get feed(): Hypercore
     get locked(): boolean

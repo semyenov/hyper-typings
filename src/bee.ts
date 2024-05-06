@@ -1,11 +1,12 @@
 import Hypercore from "hypercore";
 import Hyperbee from "hyperbee";
-import consola from "consola";
 
+import consola from "consola";
 const logger = consola.withTag("bee");
 
 const hypercore = new Hypercore('./.out/hypercore');
-logger.info('info', await hypercore.info());
+await hypercore.ready();
+// logger.info('info', await hypercore.info());
 
 const hyperbee = new Hyperbee(hypercore, {
   keyEncoding: "utf-8", valueEncoding: "json"
@@ -15,7 +16,7 @@ const v1 = hyperbee.version;
 
 // If you own the core
 await hyperbee.put("key1", { value: "value777" }, {
-  cas: (left, right) => left.value !== right.value,
+  cas: (prev, next) => prev.value !== next.value,
 });
 await hyperbee.del("key1");
 await hyperbee.put("key3", { value: "valuesss2" });

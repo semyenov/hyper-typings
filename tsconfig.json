@@ -1,29 +1,32 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig.json",
+
   "compilerOptions": {
-    "lib": ["ESNext"],
     "target": "ESNext",
+    "lib": ["ESNext", "DOM"],
+    "baseUrl": ".",
+    "rootDir": ".",
     "module": "ESNext",
-    "moduleDetection": "force",
-    "jsx": "react-jsx",
-    "allowJs": true,
-
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
-    "noEmit": true,
-
-    /* Typings */
+    "moduleResolution": "Bundler",
+    "noResolve": false,
+    "paths": {
+      "~/*": ["src/*"],
+      "@/*": ["lib/*"],
+      "types/*": ["types/*"]
+    },
     "resolveJsonModule": true,
+    "resolvePackageJsonExports": true,
+    "resolvePackageJsonImports": true,
+    "allowJs": true,
+    "strict": true,
+    "declaration": false,
+    "importHelpers": true,
+    "outDir": "dist",
+    "sourceMap": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "allowUmdGlobalAccess": true,
-    "allowUnusedLabels": true,
-
-    /* Linting */
-    "skipLibCheck": true,
-    "strict": true,
-    "noFallthroughCasesInSwitch": true,
-    "forceConsistentCasingInFileNames": true
-  }
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  },
+  "include": ["types/**/*", "src/**/*", "lib/**/*", "scripts/**/*"]
 }

@@ -1,73 +1,92 @@
+
+
+
 declare module 'hypercore' {
-  import { Buffer } from 'node:buffer';
-  import { Readable } from 'node:stream';
-  import Hypercore from 'hypercore';
-
-  type Storage = string | ((filename: string) => any);
-
-  export interface ReadStreamOptions {
-    start?: number;
-    end?: number;
-    snapshot?: boolean;
-    live?: boolean;
-  }
+  import { EventEmitter } from 'node:events';
+  import { Readable, Writable, Duplex } from 'stream';
+  import RandomAccessStorage from 'random-access-storage';
+  import ReadyResource from 'ready-resource'
 
   export interface HypercoreOptions {
     createIfMissing?: boolean;
     overwrite?: boolean;
-    sparse?: boolean;
     valueEncoding?: 'json' | 'utf-8' | 'binary';
-    encodeBatch?: (batch: any) => any;
-    keyPair?: { publicKey: Buffer, secretKey: Buffer };
-    encryptionKey?: string;
-    onDownloadWait?: () => void;
+    sparse?: boolean;
+    secretKey?: Buffer;
+    storeSecretKey?: boolean;
+    storageCacheSize?: number;
+    onwrite?(index: number, data: Buffer, peer: string, cb: () => void): void;
+  }
+
+  export interface HypercoreGetOptions {
+    wait?: boolean;
     timeout?: number;
-    disableAppendOnly?: boolean;
-    valueEncoding?: any; // abstract-encoding or compact-encoding instance
+    valueEncoding?: 'json' | 'utf-8' | 'binary';
   }
 
-  export class ReadStream<T = any> extends Readable<T> {
-    constructor(core: Hypercore, opts?: ReadStreamOptions);
-
-    readonly core: Hypercore;
-    readonly start: number;
-    readonly end: number;
-    readonly snapshot: boolean;
-    readonly live: boolean;
+  export interface HypercoreDownloadRange {
+    start: number;
+    end?: number;
+    linear?: boolean;
   }
 
-  export default class Hypercore {
-    constructor(storage: Storage, key?: Buffer | string, options?: HypercoreOptions);
+  export interface HypercoreSignatureIndex {
+    index?: number,
+    signature?: Buffer
+  }
 
-    readonly id: string;
-    readonly key: Buffer;
-    readonly keyPair: { publicKey: Buffer, secretKey: Buffer };
-    readonly discoveryKey: Buffer;
-    readonly encryptionKey: Buffer | null;
-    readonly readable: boolean;
-    readonly writable: boolean;
-    readonly length: number;
-    readonly contiguousLength: number;
-    readonly fork: number;
-    readonly padding: number;
+  export interface HypercoreNode {
+    index: number;
+    size: number;
+    hash: Buffer;
+  }
 
-    append(block: Buffer | Buffer[]): Promise<{ length: number, byteLength: number }>;
-    get(index: number, options?: { timeout?: number, wait?: boolean }): Promise<Buffer>;
-    has(start: number, end?: number): Promise<boolean>;
-    update(options?: { wait?: boolean }): Promise<boolean>;
-    seek(byteOffset: number, options?: { wait?: boolean, timeout?: number }): Promise<[number, number]>;
-    createReadStream(options?: { start?: number, end?: number, realtime?: boolean, autoEnd?: boolean }): Readable; // Readable Stream
-    createByteStream(options?: { byteOffset?: number, byteLength?: number, blocks?: number, linear?: boolean }): Readable; // Readable Stream
-    clear(start: number, end?: number, options?: { returned?: boolean }): Promise<void>;
-    truncate(newLength: number, forkId?: number): Promise<void>;
-    purge(): Promise<void>;
-    treeHash(length?: number): Promise<Buffer>;
-    download(range?: { start?: number, end?: number, blocks?: number[], linear?: boolean }): { done: () => Promise<void> };
-    session(options?: HypercoreOptions): Hypercore;
-    info(options?: { getStorageEstimates?: boolean }): Promise<any>;
+  export interface HypercoreStreamOptions {
+    start?: number;
+    end?: number;
+    snapshot?: boolean;
+    tail?: boolean;
+    live?: boolean;
+    timeout?: number;
+    wait?: boolean;
+  }
+
+  export interface HypercoreReplicateOptions {
+    live?: boolean;
+    download?: boolean;
+    encrypt?: boolean;
+  }
+
+  export default class Hypercore<T> extends ReadyResource {
+    constructor(storage: ((filename: string) => RandomAccessStorage) | string, key?: Buffer | string, options?: HypercoreOptions);
+
+    writable: boolean;
+    readable: boolean;
+    key: Buffer | null;
+    discoveryKey: Buffer | null;
+    length: number;
+
+    get(index: number, options: HypercoreGetOptions): Promise<T>;
+    get(index: number): Promise<T>;
+    head(options: HypercoreGetOptions): Promise<T>;
+    head(): Promise<T>;
+    download(range: HypercoreDownloadRange): Download;
+    undownload(range: HypercoreDownloadRange): void;
+    signature(index: number): Promise<HypercoreSignatureIndex>;
+    verify(index: number, signature: Buffer): Promise<boolean>;
+    rootHashes(index: number): Promise<HypercoreNode[]>;
+    downloaded(start: number, end: number): number;
+    has(start: number, end: number): boolean;
+    append(data: T): Promise<number>;
+    clear(start: number, end: number): Promise<void>;
+    seek(byteOffset: number): Promise<[number, number]>;
+    update(opts?: { minLength?: number }): Promise<void>;
+    createReadStream(options?: HypercoreStreamOptions): Readable;
+    createWriteStream(): Writable;
+    replicate(options?: HypercoreReplicateOptions): Duplex;
     close(): Promise<void>;
-    ready(): Promise<void>;
-    replicate(isInitiator: boolean | any, options?: any): any; // Replication Stream
-    findingPeers(): () => void;
+
+    on(event: "peer-add" | "peer-remove" | "manifest" | "truncate" | "verification-error", listener: () => void): this;
+    once(event: "peer-add" | "peer-remove" | "manifest" | "truncate" | "verification-error", listener: () => void): this;
   }
 }

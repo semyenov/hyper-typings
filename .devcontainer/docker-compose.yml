@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  devcontainer:
+    image: mcr.microsoft.com/devcontainers/typescript-node
+    restart: unless-stopped
+    command: tail -f /dev/null
+    environment:
+      - NODE_ENV=development
+      - NITRO_PORT=4000
+    ports:
+      - 4000:4000
+    volumes:
+      - ../..:/workspaces:cached
+
+  redis:
+    image: docker.dragonflydb.io/dragonflydb/dragonfly:latest
+    restart: unless-stopped
+    ulimits:
+      memlock: -1
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - 6379:6379
+    volumes:
+      - redis-data:/data
+    command: dragonfly --default_lua_flags=allow-undeclared-keys
+
+volumes:
+  redis-data:

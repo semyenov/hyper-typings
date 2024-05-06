@@ -1,6 +1,6 @@
 declare module 'udx-native' {
   import { EventEmitter } from 'node:events';
-  import { Duplex } from 'node:stream';
+  import { Duplex } from 'stream';
 
   export interface NetworkInterfacesWatcher extends AsyncIterable<{ name: string, host: string, family: 4 | 6, internal: boolean }[]> {
     start(): void;
