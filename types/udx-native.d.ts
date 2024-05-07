@@ -1,5 +1,8 @@
+/// <reference types="node" />
+
 declare module 'udx-native' {
   import { EventEmitter } from 'node:events';
+  import { Writable } from 'streamx';
   import { Duplex } from 'stream';
 
   export interface NetworkInterfacesWatcher extends AsyncIterable<{ name: string, host: string, family: 4 | 6, internal: boolean }[]> {
@@ -16,7 +19,7 @@ declare module 'udx-native' {
     seq?: number
   }
 
-  export class UDXSocket {
+  export class UDXSocket extends WritableStream {
     constructor(udx: UDX);
 
     readonly userData: any;

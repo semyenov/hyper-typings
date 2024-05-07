@@ -1,52 +1,99 @@
+
 declare module 'hyperdht' {
-    import { EventEmitter } from 'node:events';
-    import { Buffer } from 'node:buffer';
-    import DHT from 'dht-rpc';
+  import { UDXSocket } from 'udx-native'
+  import { EventEmitter } from 'events'
 
-    interface KeyPair {
-        publicKey: Buffer;
-        privateKey: Buffer;
-    }
+  export default class DHT extends EventEmitter {
+    constructor(options?: {
+      bootstrap?: string[]
+      keyPair?: KeyPair
+      connectionKeepAlive?: number
+    })
 
-    class HyperDHT extends DHT {
-        readonly defaultKeyPair: KeyPair;
+    static keyPair(seed?: Buffer): KeyPair
 
-        constructor(opts?: any);
+    destroy(options?: { force?: boolean }): Promise<void>
 
-        connect(remotePublicKey: Buffer, opts?: any): Promise<any>;
-        createServer(opts?: any, onconnection?: any): Server;
-        pool(): ConnectionPool;
-        resume(): Promise<void>;
-        suspend(): Promise<void>;
-        destroy(opts?: any): Promise<void>;
-        validateLocalAddresses(addresses: any[]): Promise<any>;
-        findPeer(publicKey: Buffer, opts?: any): Query;
-        lookup(target: Buffer, opts?: any): Query;
-        lookupAndUnannounce(target: Buffer, keyPair: KeyPair, opts?: any): Query;
-        unannounce(target: Buffer, keyPair: KeyPair, opts?: any): Promise<void>;
-        announce(target: Buffer, keyPair: KeyPair, relayAddresses: any, opts?: any): Promise<void>;
-        immutableGet(target: Buffer, opts?: any): Query;
-        immutablePut(value: Buffer, opts?: any): Promise<{ hash: Buffer; closestNodes: Node[] }>;
-        mutableGet(publicKey: Buffer, opts?: any): Query;
-        mutablePut(keyPair: KeyPair, value: Buffer, opts?: any): Promise<{ publicKey: Buffer; closestNodes: Node[]; seq: number; signature: Buffer }>;
-        onrequest(req: any): boolean;
+    static bootstrapper(port: number, host: string, options?: any): DHT
 
-        static keyPair(seed: any): any;
-        static hash(data: any): Buffer;
-        static connectRawStream(encryptedStream: any, rawStream: any, remoteId: any): void;
+    createServer(
+      options?: {
+        firewall?: (
+          remotePublicKey: Buffer,
+          remoteHandshakePayload: any,
+        ) => boolean
+      },
+      onconnection?: (socket: Socket) => void,
+    ): Server
 
-        createRawStream(opts: any): any;
-    }
+    connect(
+      remotePublicKey: Buffer,
+      options?: { nodes?: any[]; keyPair?: KeyPair },
+    ): Socket
 
+    lookup(topic: Buffer, options?: any): LookupStream
 
-    // type Query = import("hyperdht/lib/query");
-    // type Server = import("hyperdht/lib/server");
-    // type Node = import("hyperdht/lib/node");
-    // type Router = import("hyperdht/lib/router");
-    // type SocketPool = import("hyperdht/lib/socket-pool");
-    // type RawStreamSet = import("hyperdht/lib/raw-stream-set");
-    // type Persistent = import("hyperdht/lib/persistent");
-    // type ConnectionPool = import("hyperdht/lib/connection-pool");
+    announce(
+      topic: Buffer,
+      keyPair: KeyPair,
+      relayAddresses?: { host: string; port: number }[],
+      options?: any,
+    ): LookupStream
 
-    export default HyperDHT;
+    unannounce(topic: Buffer, keyPair: KeyPair, options?: any): Promise<void>
+
+    immutablePut(
+      value: Buffer,
+      options?: any,
+    ): Promise<{ hash: Buffer; closestNodes: any[] }>
+
+    immutableGet(
+      hash: Buffer,
+      options?: any,
+    ): Promise<{ value: Buffer; from: any }>
+
+    mutablePut(
+      keyPair: KeyPair,
+      value: Buffer,
+      options?: any,
+    ): Promise<{
+      publicKey: Buffer
+      closestNodes: any[]
+      seq: number
+      signature: Buffer
+    }>
+
+    mutableGet(
+      publicKey: Buffer,
+      options?: { seq?: number; latest?: boolean },
+    ): Promise<{ value: Buffer; from: any; seq: number; signature: Buffer }>
+
+  }
+
+  interface KeyPair {
+    publicKey: Buffer
+    secretKey: Buffer
+  }
+
+  export class Server extends EventEmitter {
+    listen(keyPair: KeyPair): Promise<void>
+    refresh(): void
+    close(): Promise<void>
+    address(): { host: string; port: number; publicKey: Buffer }
+    nodes: any[]
+
+    on(eventName: 'connection', listener: (socket: Socket) => void): this;
+  }
+
+  interface Socket extends UDXSocket {
+    remotePublicKey: Buffer
+    publicKey: Buffer
+    handshakeHash: Buffer
+  }
+
+  interface LookupStream extends EventEmitter {
+    from: { id: Buffer; host: string; port: number }
+    to: { host: string; port: number }
+    peers: { publicKey: Buffer; nodes: { host: string; port: number }[] }[]
+  }
 }

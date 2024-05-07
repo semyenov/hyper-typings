@@ -3,7 +3,7 @@
 
 declare module 'hypercore' {
   import { EventEmitter } from 'node:events';
-  import { Readable, Writable, Duplex } from 'stream';
+  import { Readable, Writable, Duplex } from 'streamx';
   import RandomAccessStorage from 'random-access-storage';
   import ReadyResource from 'ready-resource'
 
@@ -57,12 +57,12 @@ declare module 'hypercore' {
     encrypt?: boolean;
   }
 
-  export default class Hypercore<T> extends ReadyResource {
+  export default class Hypercore<T = any> extends ReadyResource {
     constructor(storage: ((filename: string) => RandomAccessStorage) | string, key?: Buffer | string, options?: HypercoreOptions);
 
     writable: boolean;
     readable: boolean;
-    key: Buffer | null;
+    key: Buffer;
     discoveryKey: Buffer | null;
     length: number;
 

@@ -26,3 +26,4 @@ core
 # Other
 .scraper-*
 *.log*
+.out

@@ -1,6 +1,6 @@
 
 declare module 'hyperbee' {
-  import { Readable } from 'stream';
+  import { Duplex, Readable } from 'streamx';
   import ReadyResource from 'ready-resource'
 
   import Hypercore from 'hypercore';
@@ -56,17 +56,15 @@ declare module 'hyperbee' {
     readonly writable: boolean;
     readonly readable: boolean;
 
-    ready(): Promise<void>;
-    close(): Promise<void>;
     put<T = any>(key: string, value?: T, options?: { cas?(prev: HyperbeeEntry<T>, next: HyperbeeEntry<T>): boolean }): Promise<void>;
     get<T = any>(key: string, options?: { wait?: boolean; update?: boolean; keyEncoding?: string; valueEncoding?: string }): Promise<HyperbeeEntry<T> | null>;
     del<T = any>(key: string, options?: { cas?(prev: HyperbeeEntry<T>): boolean }): Promise<void>;
     getBySeq<T = any>(seq: number, options?: { keyEncoding?: string; valueEncoding?: string }): Promise<HyperbeeEntry<T> | null>;
-    replicate(isInitiatorOrStream: boolean): any;
+    replicate(isInitiatorOrStream: boolean): Duplex;
     batch(): HyperbeeWriteBatch;
     createReadStream<T = any>(range?: HyperbeeRange, options?: { reverse?: boolean; limit?: number }): Readable<HyperbeeEntry<T>>;
     peek<T = any>(range?: HyperbeeRange, options?: { keyEncoding?: string; valueEncoding?: string }): Promise<HyperbeeEntry<T> | null>;
-    createHistoryStream<T = any>(options?: { live?: boolean; reverse?: boolean; start?: number; startSeq?: number; end?: number; limit?: number }): AsyncIterableIterator<HyperbeeEntry<T>>;
+    createHistoryStream<T = any>(options?: { live?: boolean; reverse?: boolean; start?: number; startSeq?: number; end?: number; limit?: number }): Readable<HyperbeeEntry<T>>;
     createDiffStream<T = any>(otherVersion: number, options?: HyperbeeRange & { reverse?: boolean; limit?: number }): Readable<{ left: HyperbeeEntry<T> | null; right: HyperbeeEntry<T> | null }>;
     getAndWatch(key: string, options?: HyperbeeWatcherOptions): Promise<HyperbeeWatcher>;
     watch<T = any>(range?: HyperbeeRange): AsyncIterableIterator<{ current: HyperbeeEntry<T>; previous: HyperbeeEntry<T> | null }>;

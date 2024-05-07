@@ -1,4 +1,3 @@
-
 declare module 'hyperblobs' {
   import { Readable, Writable } from 'stream'
   import Hypercore from 'hypercore'
@@ -15,7 +14,7 @@ declare module 'hyperblobs' {
   }
 
   export default class Hyperblobs {
-    constructor( core: Hypercore, opts?: HyperblobsOptions)
+    constructor(core: Hypercore, opts?: HyperblobsOptions)
 
     public readonly core: Hypercore
 
@@ -29,4 +28,3 @@ declare module 'hyperblobs' {
     createWriteStream(opts?: { core?: Hypercore }): Writable
   }
 }
-

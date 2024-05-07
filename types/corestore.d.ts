@@ -21,7 +21,8 @@ declare module 'corestore' {
   export default class Corestore extends ReadyResource {
     constructor(storage: RandomAccessStorage | string | ((path: string) => RandomAccessStorage), options?: CorestoreOptions);
 
-    get(key: Buffer | { key: Buffer | string, name?: string, exclusive?: boolean, [options: string]: any }): Hypercore;
+    get(key: Buffer | string | { key?: Buffer | string, name?: string, exclusive?: boolean, [options: string]: any }): Hypercore;
+    get(key: Buffer | string, options: { key?: Buffer | string, name?: string, exclusive?: boolean, [options: string]: any }): Hypercore;
     replicate(options: CorestoreReplicationOptions | any): any;
     namespace(name: string): Corestore;
     session(options?: CorestoreSessionOptions): Corestore;
