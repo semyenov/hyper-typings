@@ -2,6 +2,7 @@ import Autobase, { AutobaseHandlers } from "autobase"
 import b4a from "b4a"
 import Corestore from "corestore"
 import Hyperbee, { HyperbeeRange } from "hyperbee"
+import Hypercore from "hypercore"
 
 type Op = {
   type: "del" | "put" | "add" | "exit"
@@ -11,11 +12,11 @@ type Op = {
 }
 
 export default class Autobee extends Autobase<Hyperbee, Op> {
-  constructor(...[store, bootstrap, handlers]: [
-    Corestore,
-    string | Buffer | null,
-    AutobaseHandlers<Hyperbee>,
-  ]) {
+  constructor(
+    store: Corestore,
+    bootstrap: Buffer | string | null,
+    handlers: AutobaseHandlers<Hyperbee> = {},
+  ) {
     handlers = {
       apply: Autobee.apply,
 
@@ -35,7 +36,7 @@ export default class Autobee extends Autobase<Hyperbee, Op> {
   }
 
   static async apply(
-    batch: { value: Op }[],
+    batch: { value: Op; from: Hypercore }[],
     view: Hyperbee,
     base: Autobase<Hyperbee, Op>,
   ) {
@@ -44,8 +45,10 @@ export default class Autobee extends Autobase<Hyperbee, Op> {
 
     for (const node of batch) {
       const { type, key, value, opts } = node.value
+
+      console.log("Writer " + b4a.toString(node.from.key, "hex"))
       console.log(
-        "\nCurrent operation\n",
+        "current operation\n",
         JSON.stringify(
           {
             type,

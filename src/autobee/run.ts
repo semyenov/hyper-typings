@@ -57,7 +57,7 @@ db.view.core.on("append", async () => {
     key: Buffer
     value: any
   }>()) {
-    console.log(`\r${node.key}:`, JSON.stringify(node.value))
+    console.log(`\r${node.key}`, JSON.stringify(node.value))
   }
 
   rl.prompt()
@@ -74,24 +74,22 @@ swarm.on("connection", (connection, peerInfo) => {
   console.log("\nPeer joined", b4a.toString(peerInfo.publicKey, "hex"))
 
   rl.prompt()
-  db.store.replicate(connection)
+  db.replicate(connection)
 })
 
 const discovery = swarm.join(b4a.toBuffer(db.discoveryKey))
 await discovery.flushed()
 
 rl.pause()
-console.log("putting a key")
-
 const simplePut = async (
   db: Autobee,
   key: string = "test/default",
   value = "hello",
   opts: any = {},
 ) => {
-  console.log("\nWriter", b4a.toString(db.local.key, "hex"))
   await db.put(key, value, opts)
 }
+
 if (db.writable) {
   await simplePut(db)
 } else {
