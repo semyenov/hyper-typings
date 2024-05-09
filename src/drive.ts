@@ -9,13 +9,13 @@ const logger = consola.withTag("drive");
 const corestore = new Corestore("./corestore");
 
 const hyperdrive = new Hyperdrive(corestore);
-const localdrive = new Localdrive("./src");
+const localdrive = new Localdrive('./src');
 const mirrordrive = new MirrorDrive(localdrive, hyperdrive);
 
 logger.info(mirrordrive.count); // => { files: 0, add: 0, remove: 0, change: 0 }
 
 for await (const diff of mirrordrive) {
-  logger.info(diff);
+	logger.info(diff);
 }
 
 // To create a full typings file for hypercore by holepunchto, you can start by referencing the existing type declaration file mentioned in the GitHub issue Source 3. This file was created by a user named phoenix344 and is available as a gist. You can find the gist at the following URL: https://gist.github.com/phoenix344/035cc9cf6728ce3619d0caa760e1f44a.

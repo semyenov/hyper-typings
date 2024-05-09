@@ -4,103 +4,101 @@ declare module 'hyperswarm' {
   import { EventEmitter } from 'node:events';
   import { Readable } from 'stream';
 
-  import { NoiseSecretStream } from '@hyperswarm/secret-stream';
-  import DHT from 'dht-rpc';
+	import {type NoiseSecretStream} from '@hyperswarm/secret-stream';
+	import type DHT from 'dht-rpc';
 
-  interface KeyPair {
-    publicKey: Buffer;
-    privateKey: Buffer;
-  }
+  type KeyPair = {
+  	publicKey: Buffer;
+  	privateKey: Buffer;
+  };
 
-  interface Connection {
-    remotePublicKey: Buffer | string;
-  }
+  type Connection = {
+  	remotePublicKey: Buffer | string;
+  };
 
-  interface Firewall {
-    (remotePublicKey: Buffer, payload: Buffer | null): boolean
-  }
+  type Firewall = (remotePublicKey: Buffer, payload: Buffer | undefined) => boolean;
 
-  export interface HyperswarmOptions {
-    seed?: Buffer,
-    relayThrough?: (force: boolean) => (string | null),
-    keyPair?: KeyPair,
-    maxPeers?: number,
-    maxClientConnections?: number,
-    maxServerConnections?: number,
-    maxParallel?: number,
-    backoffs?: number[],
-    jitter?: number,
-    bootstrap?: string[],
-    debug?: boolean,
-    dht?: DHT
-  }
+  export type HyperswarmOptions = {
+  	seed?: Buffer;
+  	relayThrough?: (force: boolean) => (string | undefined);
+  	keyPair?: KeyPair;
+  	maxPeers?: number;
+  	maxClientConnections?: number;
+  	maxServerConnections?: number;
+  	maxParallel?: number;
+  	backoffs?: number[];
+  	jitter?: number;
+  	bootstrap?: string[];
+  	debug?: boolean;
+  	dht?: DHT;
+  };
 
-  export interface JoinOptions {
-    timeout?: number,
-    announce?: boolean,
-    lookup?: boolean,
-    server?: boolean,
-    client?: boolean
-  }
+  export type JoinOptions = {
+  	timeout?: number;
+  	announce?: boolean;
+  	lookup?: boolean;
+  	server?: boolean;
+  	client?: boolean;
+  };
 
-  export interface PeerInfo {
-    publicKey: Buffer,
-    relayAddresses: string[],
-    client: boolean,
-    server: boolean
-  }
+  export type PeerInfo = {
+  	publicKey: Buffer;
+  	relayAddresses: string[];
+  	client: boolean;
+  	server: boolean;
+  };
 
-  export interface PeerDiscovery {
-    on: (event: string, listener: (...args: any[]) => void) => void,
-    session: (opts: JoinOptions) => any,
-    flushed: () => Promise<void>,
-    destroyed: () => Promise<void>,
-    refresh: () => Promise<void>,
-    suspend: () => Promise<void>,
-    resume: () => Promise<void>
-  }
+  export type PeerDiscovery = {
+  	on: (event: string, listener: (...args: any[]) => void) => void;
+  	session: (opts: JoinOptions) => any;
+  	flushed: () => Promise<void>;
+  	destroyed: () => Promise<void>;
+  	refresh: () => Promise<void>;
+  	suspend: () => Promise<void>;
+  	resume: () => Promise<void>;
+  };
 
-  export interface ConnectionSet {
-    [Symbol.iterator](): IterableIterator<Connection>,
+  export type ConnectionSet = {
+  	[Symbol.iterator](): IterableIterator<Connection>;
 
-    size: number
+  	size: number;
 
-    has: (publicKey: Buffer | string) => boolean,
-    get: (publicKey: Buffer | string) => Connection | undefined;
-    add: (connection: Connection) => void;
-    delete: (connection: Connection) => void;
-  }
+  	has: (publicKey: Buffer | string) => boolean;
+  	get: (publicKey: Buffer | string) => Connection | undefined;
+  	add: (connection: Connection) => void;
+  	delete: (connection: Connection) => void;
+  };
 
   export default class Hyperswarm extends EventEmitter {
-    constructor(opts?: HyperswarmOptions)
+  	constructor(opts?: HyperswarmOptions);
 
-    readonly dht: DHT;
-    readonly destroyed: boolean
-    readonly suspended: boolean
-    readonly maxPeers: number
-    readonly maxClientConnections: number
-    readonly maxServerConnections: number
-    readonly maxParallel: number
-    readonly relayThrough: HyperswarmOptions['relayThrough'] | null
-    readonly connecting: number
-    readonly connections: Set
-    readonly peers: Map
-    readonly explicitPeers: Set
-    readonly listening: null
+  	readonly dht: DHT;
+  	readonly destroyed: boolean;
+  	readonly suspended: boolean;
+  	readonly maxPeers: number;
+  	readonly maxClientConnections: number;
+  	readonly maxServerConnections: number;
+  	readonly maxParallel: number;
+  	readonly relayThrough: HyperswarmOptions['relayThrough'] | undefined;
+  	readonly connecting: number;
+  	readonly connections: Set;
+  	readonly peers: Map;
+  	readonly explicitPeers: Set;
+  	readonly listening: undefined;
 
-    connect(topic: Buffer, options?: JoinOptions): PeerDiscovery
-    join(topic: Buffer, opts?: JoinOptions): PeerDiscovery
-    leave(topic: Buffer): Promise<void>
-    joinPeer(publicKey: Buffer): void
-    leavePeer(publicKey: Buffer): void
-    listen(): Promise<void>
-    flush(): Promise<boolean>
-    clear(): Promise<void>
-    destroy(opts?: { force: boolean }): Promise<void>
-    suspend(): Promise<void>
-    resume(): Promise<void>
-    topics(): IterableIterator<PeerDiscovery>
-    on(event: 'connection', listener: (conn: NoiseSecretStream, info: PeerInfo) => void): this
+  	connect(topic: Buffer, options?: JoinOptions): PeerDiscovery;
+  	join(topic: Buffer, opts?: JoinOptions): PeerDiscovery;
+  	leave(topic: Buffer): Promise<void>;
+  	joinPeer(publicKey: Buffer): void;
+  	leavePeer(publicKey: Buffer): void;
+  	listen(): Promise<void>;
+  	flush(): Promise<boolean>;
+  	clear(): Promise<void>;
+  	destroy(opts?: {force: boolean}): Promise<void>;
+  	suspend(): Promise<void>;
+  	resume(): Promise<void>;
+  	topics(): IterableIterator<PeerDiscovery>;
+  	on(event: 'connection', listener: (conn: NoiseSecretStream, info: PeerInfo) => void): this;
   }
 }
 

@@ -24,7 +24,8 @@ await hypercore.ready();
 // logger.info('info', await hypercore.info());
 
 const hyperbee = new Hyperbee(hypercore, {
-  keyEncoding: "utf-8", valueEncoding: "json"
+  keyEncoding: "utf-8",
+  valueEncoding: "json",
 });
 
 const hyperbee2 = new Hyperbee(hypercore2, {

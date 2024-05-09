@@ -1,3 +1,5 @@
+// corestore.d.ts
+
 declare module 'corestore' {
   import { Buffer } from 'node:buffer'
   import { RandomAccessStorage } from 'random-access-storage'
@@ -9,9 +11,15 @@ declare module 'corestore' {
     primaryKey?: Buffer
   }
 
-  export interface CorestoreReplicationOptions {
-    // Define replication options here
-  }
+	export default class Corestore extends EventEmitter {
+		constructor(storage: Storage, opts?: CorestoreOptions);
+		ready(): Promise<void>;
+		get(opts?: GetOptions): Hypercore;
+		replicate(isInitiator: boolean | Stream, opts?: ReplicateOptions): Stream;
+		namespace(name: string, opts?: NamespaceOptions): Corestore;
+		session(opts?: SessionOptions): Corestore;
+		close(): Promise<void>;
+	}
 
   export interface CorestoreSessionOptions {
     primaryKey?: Buffer
