@@ -11,15 +11,16 @@ declare module 'corestore' {
     primaryKey?: Buffer
   }
 
-	export default class Corestore extends EventEmitter {
-		constructor(storage: Storage | string, opts?: CorestoreOptions);
-		ready(): Promise<void>;
-		get(opts?: GetOptions): Hypercore;
-		replicate(isInitiator: boolean | Stream, opts?: ReplicateOptions): Stream;
-		namespace(name: string, opts?: NamespaceOptions): Corestore;
-		session(opts?: SessionOptions): Corestore;
-		close(): Promise<void>;
-	}
+  export default class Corestore extends EventEmitter {
+    constructor(storage: Storage | string, opts?: CorestoreOptions)
+    ready(): Promise<void>
+    get(key: strine, opts?: GetOptions): Hypercore
+    get(opts?: GetOptions): Hypercore
+    replicate(isInitiator: boolean | Stream, opts?: ReplicateOptions): Stream
+    namespace(name: string, opts?: NamespaceOptions): Corestore
+    session(opts?: SessionOptions): Corestore
+    close(): Promise<void>
+  }
 
   export interface CorestoreSessionOptions {
     primaryKey?: Buffer

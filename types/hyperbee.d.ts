@@ -139,6 +139,7 @@ declare module 'hyperbee' {
       },
     ): Hyperbee
     getHeader(options?: any): Promise<any>
+    update(opts?: { wait: boolean }): Promise<void>
   }
 }
 

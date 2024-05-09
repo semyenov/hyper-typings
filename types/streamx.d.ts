@@ -1,3 +1,5 @@
+import { EventEmitter } from 'stream'
+
 declare module 'streamx' {
   export { EventEmitter } from 'events'
 
@@ -45,7 +47,7 @@ declare module 'streamx' {
     destroy(err?: Error): void
   }
 
-  export class Readable<T = any> extends Stream {
+  export class Readable<T = any> extends Stream implements EventEmitter {
     constructor(opts?: ReadableOptions)
     read(size?: number): T
     setEncoding(encoding: string): this

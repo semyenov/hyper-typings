@@ -1,5 +1,7 @@
 import path from "node:path/posix";
+import mutexify from "mutexify/promise";
 import readline from "readline";
+import consola from "consola";
 import chalk from "chalk";
 import b4a from "b4a";
 
@@ -8,10 +10,16 @@ import Corestore from "corestore";
 import Hyperbee from "hyperbee";
 import Autobase from "autobase";
 import Autobee from "./index";
-import mutexify from "mutexify/promise";
 
-import consola from "consola";
-const logger = consola.withTag("autobee");
+const logger = consola.create({
+  defaults: { message: ">" },
+  formatOptions: {
+    colors: true,
+    date: false,
+    compact: true,
+    columns: 80,
+  },
+});
 
 const args = process.argv.slice(2);
 const storageDir = path.join(".out", args[0] ?? "db");
@@ -39,8 +47,14 @@ const db = new Autobee(store.session(), bootstrap, {
 
       const release = await lock();
       logger.log(chalk.red("Operation"));
-      logger.log(chalk.green(b4a.toString(node.from.key, "hex")));
-      logger.log(chalk.cyan(JSON.stringify({ type, key, value, opts })));
+      logger.log(
+        chalk.green("writer"),
+        chalk.cyan(b4a.toString(node.from.key, "hex")),
+      );
+      logger.log(chalk.gray("-----"));
+      Object.entries({ type, key, value, opts }).forEach(([k, v]) => {
+        logger.log(chalk.green(k), chalk.yellow(JSON.stringify(v)));
+      });
       logger.log(chalk.gray("-----\n"));
       release();
 
@@ -48,7 +62,11 @@ const db = new Autobee(store.session(), bootstrap, {
         case "add": {
           const release = await lock();
           logger.log(chalk.green("Adding writer"));
-          logger.log(chalk.cyan(key));
+          logger.log(chalk.gray("-----"));
+          logger.log(
+            chalk.green("writer"),
+            chalk.cyan(b4a.toString(key, "hex")),
+          );
           logger.log(chalk.gray("-----\n"));
           release();
 
@@ -71,11 +89,19 @@ db.view.core.on(
 
     const release = await lock();
     logger.log(chalk.red("State"));
+    logger.log(
+      chalk.green("db"),
+      chalk.cyan(b4a.toString(db.key, "hex")),
+    );
+    logger.log(chalk.gray("-----"));
+
     for await (
       const node of db.createReadStream<{ key: string; value: any }>()
     ) {
-      logger.log(chalk.green(`${node.key}`));
-      logger.log(chalk.cyan(JSON.stringify(node.value)));
+      logger.log(
+        chalk.green(`${node.key}`),
+        chalk.yellow(JSON.stringify(node.value)),
+      );
     }
 
     logger.log(chalk.gray("-----\n"));
@@ -84,9 +110,10 @@ db.view.core.on(
 );
 
 const release = await lock();
-logger.log(chalk.magenta("Bootstrap key"));
+logger.log(chalk.magenta("Bootstrap"));
 logger.log(
-  bootstrap ? chalk.green(bootstrap) : chalk.green(b4a.toString(db.key, "hex")),
+  chalk.green("key"),
+  bootstrap ? chalk.green(bootstrap) : chalk.cyan(b4a.toString(db.key, "hex")),
 );
 logger.log(chalk.gray("-----\n"));
 release();
@@ -96,8 +123,12 @@ swarm.on("connection", async (connection, peerInfo) => {
   await db.replicate(connection);
   const release = await lock();
   logger.log(chalk.red("Peer"));
-  logger.log(chalk.green(b4a.toString(peerInfo.publicKey, "hex")));
-  logger.log(chalk.cyan(JSON.stringify(peerInfo)));
+  logger.log(
+    chalk.green("publicKey"),
+    chalk.cyan(b4a.toString(peerInfo.publicKey, "hex")),
+  );
+  logger.log(chalk.gray("-----"));
+  logger.log(chalk.yellow(JSON.stringify(peerInfo)));
   logger.log(chalk.gray("-----\n"));
   release();
 });
