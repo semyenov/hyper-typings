@@ -57,7 +57,7 @@ declare module 'hypercore' {
     encrypt?: boolean;
   }
 
-  export default class Hypercore<T = any> extends ReadyResource {
+  export default class Hypercore<T = Buffer> extends ReadyResource {
     constructor(storage: ((filename: string) => RandomAccessStorage) | string, key?: Buffer | string, options?: HypercoreOptions);
 
     writable: boolean;
@@ -86,7 +86,7 @@ declare module 'hypercore' {
     replicate(options?: HypercoreReplicateOptions): Duplex;
     close(): Promise<void>;
 
-    on(event: "peer-add" | "peer-remove" | "manifest" | "truncate" | "verification-error", listener: () => void): this;
-    once(event: "peer-add" | "peer-remove" | "manifest" | "truncate" | "verification-error", listener: () => void): this;
+    on(event: "append" | "peer-add" | "peer-remove" | "manifest" | "truncate" | "verification-error", listener: () => void): this;
+    once(event: "append" | "peer-add" | "peer-remove" | "manifest" | "truncate" | "verification-error", listener: () => void): this;
   }
 }

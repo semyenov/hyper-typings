@@ -56,7 +56,7 @@ declare module 'streamx' {
     unpipe(destination?: Writable): this
     unshift(chunk: T, encoding?: string): void
     wrap(stream: Readable): this
-    [Symbol.asyncIterator](): AsyncIterator<T>
+    [Symbol.asyncIterator](): AsyncIterableIterator<T>
   }
 
   export class Writable<T = any> extends Stream {

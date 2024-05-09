@@ -1,6 +1,7 @@
 
 declare module 'autobase' {
   import { EventEmitter } from 'events';
+  import { Duplex } from 'streamx';
   import ReadyResource from 'ready-resource';
   import Corestore from "corestore";
   import Hypercore from 'hypercore';
@@ -200,7 +201,7 @@ declare module 'autobase' {
   export const DEFAULT_FF_TIMEOUT: number
   export const REMOTE_ADD_BATCH: number
 
-  export default class Autobase extends ReadyResource {
+  export default class Autobase<T = Autocore, H = any> extends ReadyResource {
     private _draining: boolean;
     private _appending: Promise<void> | null;
     private _updatingCores: boolean;
@@ -210,15 +211,22 @@ declare module 'autobase' {
     private _lock: ReturnType<typeof mutexify>;
     private _ackTimer: NodeJS.Timeout | null;
     private _acking: boolean;
+    public store: Corestore;
+    public core: Autocore;
+    public local: Hypercore<H>;
+    public view: T;
 
-    constructor(store: Corestore, bootstrap: string | Buffer | null, handlers?: AutobaseHandlers);
+    constructor(store: Corestore, bootstrap: string | Buffer | null, handlers?: AutobaseHandlers<T>);
+
+    static getLocalCore(store: Corestore<T>): Hypercore;
 
     [Symbol.for('nodejs.util.inspect.custom')](depth: number, opts?: { indentationLvl: number }): string;
     bootstraps: string[];
     writable: boolean;
-    key: string;
-    discoveryKey: string;
-    replicate(init: boolean, opts: any): any;
+    key: Buffer;
+    discoveryKey: Buffer;
+    replicate(socket: any): NodeJS.Stream;
+    replicate(init: boolean, opts?: any): NodeJS.Stream;
     heads(): any[];
     hasPendingIndexers(): boolean;
     hasUnflushedIndexers(): boolean;
@@ -226,16 +234,17 @@ declare module 'autobase' {
     flush(): Promise<void>;
     getSystemKey(): string | null;
 
-    update(): Promise<void>;
+    update({ wait }?: { wait: boolean }): Promise<void>;
     addWriter(key: Buffer, opts?: { indexer?: boolean }): Promise<void>;
     append(block: any): Promise<void>;
     close(): Promise<void>;
   }
 
-  export interface AutobaseHandlers {
-    apply?: (batch: any[], view: any, base: Autobase) => void;
-    open?: (store: Corestore) => any;
+  export interface AutobaseHandlers<T> {
+    apply?: (batch: any[], view: T, base: Autobase<T>) => Promise<void>;
+    open?: (store: Corestore) => T;
     close?: () => void;
+    valueEncoding?: 'utf8' | 'json' | 'binary';
  }
 
   function noop(): void;
