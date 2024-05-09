@@ -14,11 +14,10 @@ import consola from "consola";
 const logger = consola.withTag("autobee");
 
 const args = process.argv.slice(2);
-const storageDir = path.join('.out', args[0] ?? 'db');
+const storageDir = path.join(".out", args[0] ?? "db");
 const bootstrap = args[1];
 
 const lock = mutexify();
-
 const rl = readline.createInterface({
   // terminal: true,
   input: process.stdin,
@@ -69,6 +68,7 @@ db.view.core.on(
   "append",
   async () => {
     if (db.view.version === 1) return;
+
     const release = await lock();
     logger.log(chalk.red("State"));
     for await (
