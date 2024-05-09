@@ -1,12 +1,12 @@
-import b4a from 'b4a'
+import path from 'node:path/posix'
 import readline from 'readline'
+import chalk from 'chalk'
+import b4a from 'b4a'
 import Hyperswarm from 'hyperswarm'
 import Corestore from 'corestore'
 import Hyperbee from 'hyperbee'
 import Autobase from 'autobase'
 import Autobee from './index'
-import path from 'node:path/posix'
-import chalk from 'chalk'
 
 const args = process.argv.slice(2)
 

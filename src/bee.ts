@@ -55,7 +55,7 @@ await batch.flush(); // Execute the batch
 const entry = await hyperbee.get<Entry<string>>("key"); // => null or { key, value }
 
 
-const remoteAutobase = new Autobase(corestore, {
+const remoteAutobase = new Autobase(corestore, null, {
   valueEncoding: 'json',
   open,
   apply

@@ -12,7 +12,7 @@ declare module 'corestore' {
   }
 
 	export default class Corestore extends EventEmitter {
-		constructor(storage: Storage, opts?: CorestoreOptions);
+		constructor(storage: Storage | string, opts?: CorestoreOptions);
 		ready(): Promise<void>;
 		get(opts?: GetOptions): Hypercore;
 		replicate(isInitiator: boolean | Stream, opts?: ReplicateOptions): Stream;
