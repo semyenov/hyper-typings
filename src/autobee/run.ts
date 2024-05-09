@@ -5,39 +5,42 @@ import Corestore from 'corestore'
 import Hyperbee from 'hyperbee'
 import Autobase from 'autobase'
 import Autobee from './index'
+import path from 'node:path/posix'
+import chalk from 'chalk'
 
 const args = process.argv.slice(2)
+
+const bootstrap = args[0]
 const storageDir = args[1] ?? './storage'
-
-async function addWriter(db: Autobee, key: string) {
-  await db.append({
-    type: 'add',
-    key,
-  })
-
-  await db.update({ wait: false })
-}
 
 // Setup terminal interface
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
+  completer: (line: string) => {
+    const completions = ['put', 'del', 'add', 'exit']
+    const hits = completions.filter((c) => c.startsWith(line))
+    return [hits.length ? hits : completions, line]
+  },
 })
 
 const store = new Corestore(storageDir)
 await store.ready()
 
-const bootstrap = args[0]
-console.log('bootstrap', bootstrap)
-
 const db = new Autobee(store.session(), bootstrap, {
-  apply: async (batch: any[], view: Hyperbee, base: Autobase<Hyperbee>) => {
+  apply: async (batch: any[], view: Hyperbee, base: Autobase<Hyperbee>) => {    
     for (const node of batch) {
       const { type, key, value, opts } = node.value
 
+      console.log(
+        chalk.red('\nWriter key'),
+        chalk.green(b4a.toString(node.from.key, 'hex')),
+        chalk.cyan(JSON.stringify({ type, key, value, opts })),
+      )
+
       switch (type) {
         case 'add': {
-          console.log('\rAdding writer', key)
+          console.log(chalk.green('\rAdding writer'), chalk.blue(key))
           await base.addWriter(b4a.from(key, 'hex'), {
             indexer: true,
           })
@@ -51,77 +54,73 @@ const db = new Autobee(store.session(), bootstrap, {
 await db.ready()
 
 db.view.core.on('append', async () => {
-  // Skip append event for hyperbee's header block
   if (db.view.version === 1) return
-  rl.pause()
-
-  console.log('\nCurrent db key/value pairs')
+  
+  console.log(chalk.red('\nCurrent db'))
   for await (const node of db.createReadStream<{
-    key: Buffer
+    key: string
     value: any
   }>()) {
-    console.log(`\r${node.key}`, JSON.stringify(node.value))
+    console.log(
+      chalk.green(`\r${node.key}`),
+      chalk.cyan(JSON.stringify(node.value)),
+    )
   }
-
-  rl.prompt()
 })
 
-if (!bootstrap) {
-  console.log('db.key', b4a.toString(db.local.key, 'hex'))
-}
+console.log(
+  chalk.magenta('Bootstrap key'),
+  bootstrap 
+    ? chalk.green(bootstrap) 
+    : chalk.green(b4a.toString(db.key, 'hex')),
+)
 
 const swarm = new Hyperswarm()
-swarm.on('connection', (connection, peerInfo) => {
-  rl.pause()
-  db.replicate(connection)
-  console.log('\nPeer joined', b4a.toString(peerInfo.publicKey, 'hex'))
-
-  rl.prompt()
+swarm.on('connection', async (connection, peerInfo) => {
+  await db.replicate(connection)
+  console.log(
+    chalk.red('\nPeer joined'),
+    chalk.green(b4a.toString(peerInfo.publicKey, 'hex')),
+  )
 })
 
 const discovery = swarm.join(b4a.toBuffer(db.discoveryKey))
 await discovery.flushed()
 
 if (db.writable) {
-  await db.put('init/' + b4a.toString(db.key, 'hex'), {
+  await db.put(path.join('init', storageDir), {
     writer: b4a.toString(db.local.key, 'hex'),
   })
 } else {
-  console.log('\nDB isnt writable yet')
-  console.log('have another writer add the following key')
-  console.log('key', b4a.toString(db.local.key, 'hex'))
+  console.log(chalk.red('\nAdd a writer with "add <key>"'))
+  console.log(chalk.magenta('key'), chalk.yellow(b4a.toString(db.local.key, 'hex')))
 }
 
-console.log(`\nEnter "add <key>" to add a hypercore writer.
-Otherwise enter 'exit' to exit.`)
-
 rl.on('line', async (line) => {
-  rl.pause()
-
   if (!line) {
     rl.prompt()
     return
   }
 
-  const [type, key, value, opts]: string[] = line.split(' ')
+  const [type, key, value, opts] = line.split(' ')
+
   switch (type) {
     case 'put':
-      await db.put(key || 'test/default', value || 'hello', opts)
+      await db.put(key || 'default', value || 'Hello, world!', opts)
       break
     case 'del':
-      await db.del(key || 'test/default', opts)
+      await db.del(key || 'default', opts)
       break
     case 'add':
-      await addWriter(db, key)
+      await db.add(key, opts)
       break
     case 'exit':
       rl.close()
       await db.close()
-      await store.close()
       return process.exit(0)
   }
 
   rl.prompt()
 })
 
-rl.prompt()
+rl.emit('line')
