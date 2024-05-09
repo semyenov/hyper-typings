@@ -1,6 +1,3 @@
-declare module "mutexify" {
-  export default function mutexifyPromise(): {
-      (): Promise<void>;
-      locked: boolean;
-  }
+declare module "mutexify/promise" {
+  export default function mutexify(): () => Promise<() => void>;
 }
