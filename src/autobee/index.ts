@@ -3,24 +3,20 @@ import b4a from 'b4a'
 import Corestore from 'corestore'
 import Hyperbee, { HyperbeeRange } from 'hyperbee'
 
-export default class Autobee extends Autobase<
-  Hyperbee,
-  {
-    type: 'add' | 'del' | 'put'
-    key: string
-    value?: any
-  }
-> {
+type Op = {
+  type: 'del' | 'put' | 'add' | 'exit'
+  key: string
+  value?: any
+  opts?: any
+}
+
+export default class Autobee extends Autobase<Hyperbee, Op> {
   constructor(...args: any[]) {
     let [store, bootstrap, handlers] = args as [
       Corestore,
       string | Buffer | null,
       AutobaseHandlers<Hyperbee>,
     ]
-
-    const isBootstrap = (typeof args[1] === 'string' || b4a.isBuffer(args[1]))
-    bootstrap = isBootstrap ? args[1] : null
-    handlers = isBootstrap ? args[2] || {} : args[2] || {}
 
     handlers = {
       apply: Autobee.apply,
@@ -38,15 +34,30 @@ export default class Autobee extends Autobase<
     }
 
     super(store, bootstrap, handlers)
-    return this
   }
 
-  static async apply(batch: any[], view: Hyperbee, base: Autobase<Hyperbee>) {
+  static async apply(
+    batch: { value: Op }[],
+    view: Hyperbee,
+    base: Autobase<Hyperbee, Op>,
+  ) {
     const b = view.batch({ update: false })
 
     for (const node of batch) {
       const { type, key, value, opts } = node.value
-      console.log('op', JSON.stringify({type,  key, value, opts }, null, 2))
+      console.log(
+        '\nCurrent operation\n',
+        JSON.stringify(
+          {
+            type,
+            key,
+            value,
+            opts,
+          },
+          null,
+          2,
+        ),
+      )
 
       switch (type) {
         case 'put':
