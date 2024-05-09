@@ -1,11 +1,11 @@
-import Autobase, { AutobaseHandlers } from "autobase"
-import b4a from "b4a"
-import Corestore from "corestore"
-import Hyperbee, { HyperbeeRange } from "hyperbee"
-import Hypercore from "hypercore"
+import b4a from 'b4a'
+import Hypercore from 'hypercore'
+import Corestore from 'corestore'
+import Hyperbee, { HyperbeeRange } from 'hyperbee'
+import Autobase, { AutobaseHandlers } from 'autobase'
 
 type Op = {
-  type: "del" | "put" | "add" | "exit"
+  type: 'del' | 'put' | 'add' | 'exit'
   key: string
   value?: any
   opts?: any
@@ -21,13 +21,13 @@ export default class Autobee extends Autobase<Hyperbee, Op> {
       apply: Autobee.apply,
 
       ...handlers,
-      valueEncoding: "json",
+      valueEncoding: 'json',
       open: (store: Corestore) => {
-        const core = store.get("autobee")
+        const core = store.get('autobee')
         return new Hyperbee(core, {
           extension: false,
-          valueEncoding: "json",
-          keyEncoding: "utf-8",
+          valueEncoding: 'json',
+          keyEncoding: 'utf-8',
         })
       },
     }
@@ -46,26 +46,19 @@ export default class Autobee extends Autobase<Hyperbee, Op> {
     for (const node of batch) {
       const { type, key, value, opts } = node.value
 
-      console.log("Writer " + b4a.toString(node.from.key, "hex"))
       console.log(
-        "current operation\n",
-        JSON.stringify(
-          {
-            type,
-            key,
-            value,
-            opts,
-          },
-          null,
-          2,
-        ),
+        'Writer key ' + b4a.toString(node.from.key, 'hex') + '\n',
+        type,
+        key,
+        value,
+        opts,
       )
 
       switch (type) {
-        case "put":
+        case 'put':
           await b.put(key, value, opts)
           break
-        case "del":
+        case 'del':
           await b.del(key, opts)
           break
       }
@@ -76,7 +69,7 @@ export default class Autobee extends Autobase<Hyperbee, Op> {
 
   async put<T = any>(key: string, value: T, opts: any = {}) {
     return this.append({
-      type: "put",
+      type: 'put',
       key,
       value,
       opts,
@@ -85,7 +78,7 @@ export default class Autobee extends Autobase<Hyperbee, Op> {
 
   async del(key: string, opts: any = {}) {
     return this.append({
-      type: "del",
+      type: 'del',
       key,
       value: null,
       opts,
@@ -93,7 +86,7 @@ export default class Autobee extends Autobase<Hyperbee, Op> {
   }
 
   async get<T = any>(key: string, opts: any = {}) {
-    return this.view.get<T>(b4a.from(key, "hex"), opts)
+    return this.view.get<T>(b4a.from(key, 'hex'), opts)
   }
 
   async peek<T = any>(range?: HyperbeeRange, opts: any = {}) {

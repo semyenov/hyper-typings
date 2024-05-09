@@ -1,17 +1,17 @@
-import b4a from "b4a"
-import readline from "readline"
-import Hyperswarm from "hyperswarm"
-import Corestore from "corestore"
-import Hyperbee from "hyperbee"
-import Autobase from "autobase"
-import Autobee from "./index"
+import b4a from 'b4a'
+import readline from 'readline'
+import Hyperswarm from 'hyperswarm'
+import Corestore from 'corestore'
+import Hyperbee from 'hyperbee'
+import Autobase from 'autobase'
+import Autobee from './index'
 
 const args = process.argv.slice(2)
-const storageDir = args[1] ?? "./storage"
+const storageDir = args[1] ?? './storage'
 
 async function addWriter(db: Autobee, key: string) {
   await db.append({
-    type: "add",
+    type: 'add',
     key,
   })
 
@@ -28,17 +28,20 @@ const store = new Corestore(storageDir)
 await store.ready()
 
 const bootstrap = args[0]
-console.log("bootstrap", bootstrap)
+console.log('bootstrap', bootstrap)
 
 const db = new Autobee(store.session(), bootstrap, {
   apply: async (batch: any[], view: Hyperbee, base: Autobase<Hyperbee>) => {
     for (const node of batch) {
-      const { type, key } = node.value
-      if (type === "add") {
-        console.log("\rAdding writer", key)
-        await base.addWriter(b4a.from(key, "hex"), {
-          indexer: true,
-        })
+      const { type, key, value, opts } = node.value
+
+      switch (type) {
+        case 'add': {
+          console.log('\rAdding writer', key)
+          await base.addWriter(b4a.from(key, 'hex'), {
+            indexer: true,
+          })
+        }
       }
     }
 
@@ -47,12 +50,12 @@ const db = new Autobee(store.session(), bootstrap, {
 })
 await db.ready()
 
-db.view.core.on("append", async () => {
+db.view.core.on('append', async () => {
   // Skip append event for hyperbee's header block
   if (db.view.version === 1) return
   rl.pause()
 
-  console.log("\nCurrent db key/value pairs")
+  console.log('\nCurrent db key/value pairs')
   for await (const node of db.createReadStream<{
     key: Buffer
     value: any
@@ -64,62 +67,54 @@ db.view.core.on("append", async () => {
 })
 
 if (!bootstrap) {
-  console.log("db.key", b4a.toString(db.local.key, "hex"))
+  console.log('db.key', b4a.toString(db.local.key, 'hex'))
 }
 
 const swarm = new Hyperswarm()
-swarm.on("connection", (connection, peerInfo) => {
+swarm.on('connection', (connection, peerInfo) => {
   rl.pause()
-
-  console.log("\nPeer joined", b4a.toString(peerInfo.publicKey, "hex"))
+  db.replicate(connection)
+  console.log('\nPeer joined', b4a.toString(peerInfo.publicKey, 'hex'))
 
   rl.prompt()
-  db.replicate(connection)
 })
 
 const discovery = swarm.join(b4a.toBuffer(db.discoveryKey))
 await discovery.flushed()
 
-rl.pause()
-const simplePut = async (
-  db: Autobee,
-  key: string = "test/default",
-  value = "hello",
-  opts: any = {},
-) => {
-  await db.put(key, value, opts)
-}
-
 if (db.writable) {
-  await simplePut(db)
+  await db.put('init/' + b4a.toString(db.key, 'hex'), {
+    writer: b4a.toString(db.local.key, 'hex'),
+  })
 } else {
-  console.log("\nDB isnt writable yet")
-  console.log("have another writer add the following key")
-  console.log("key", b4a.toString(db.local.key, "hex"))
+  console.log('\nDB isnt writable yet')
+  console.log('have another writer add the following key')
+  console.log('key', b4a.toString(db.local.key, 'hex'))
 }
 
-console.log(`\nEnter "add <key>" to add a writer.
+console.log(`\nEnter "add <key>" to add a hypercore writer.
 Otherwise enter 'exit' to exit.`)
 
-rl.on("line", async (line) => {
+rl.on('line', async (line) => {
+  rl.pause()
+
   if (!line) {
     rl.prompt()
     return
   }
-  rl.pause()
 
-  const [type, key, value, opts]: string[] = line.split(" ")
+  const [type, key, value, opts]: string[] = line.split(' ')
   switch (type) {
-    case "put":
-      await simplePut(db, key, value, opts)
+    case 'put':
+      await db.put(key || 'test/default', value || 'hello', opts)
       break
-    case "del":
-      await db.del(key, opts)
+    case 'del':
+      await db.del(key || 'test/default', opts)
       break
-    case "add":
+    case 'add':
       await addWriter(db, key)
       break
-    case "exit":
+    case 'exit':
       rl.close()
       await db.close()
       await store.close()
