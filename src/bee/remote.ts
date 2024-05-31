@@ -43,7 +43,7 @@ const entry = await hyperbee.get<Entry<string>>("key"); // => null or { key, val
 
 
 const remoteAutobase = new Autobase(corestore, null, {
-  valueEncoding: 'json',
+  valueEncoding: 'binary',
   open,
   apply
 });
@@ -53,7 +53,7 @@ await remoteAutobase.ready();
 export default remoteAutobase
 
 // const localAutobase = new Autobase(corestore, remoteAutobase.key, {
-//   valueEncoding: 'json',
+//   valueEncoding: 'binary',
 //   open,
 //   apply
 // })

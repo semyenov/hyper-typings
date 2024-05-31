@@ -1,10 +1,14 @@
-
-declare module 'autobase' {
-  import { EventEmitter } from 'events';
-  import { Duplex } from 'streamx';
-  import ReadyResource from 'ready-resource';
+declare module "autobase" {
+  import { EventEmitter } from "events";
+  import { Duplex } from "streamx";
+  import ReadyResource from "ready-resource";
   import Corestore from "corestore";
-  import Hypercore from 'hypercore';
+  import Hypercore from "hypercore";
+
+  interface KeyPair {
+    publicKey: Buffer;
+    secretKey: Buffer;
+  }
 
   type SignerType = {
     signature: string;
@@ -26,12 +30,19 @@ declare module 'autobase' {
     constructor(base: Base, core: Core);
 
     sign(indexers: Array<any>, length: number): Promise<any>;
-    _verify(length: number, signature: string, key: Uint8Array): Promise<boolean>;
+    _verify(
+      length: number,
+      signature: string,
+      key: Uint8Array,
+    ): Promise<boolean>;
     open(): boolean;
     addCheckpoint(key: Uint8Array, checkpoint: Checkpoint): void;
     bestCheckpoint(idx: any, gc: boolean): Checkpoint | null;
     getSignableLength(indexers: Array<any>): Promise<number>;
-    getSignatures(indexers: Array<any>, length: number): Promise<SignerType[] | null>;
+    getSignatures(
+      indexers: Array<any>,
+      length: number,
+    ): Promise<SignerType[] | null>;
   }
 
   function findBestCheckpoint(checkpoints: Checkpoint[], len: number): number;
@@ -78,7 +89,12 @@ declare module 'autobase' {
     private _source: any; // Should specify actual type
     private _index: number;
     private _snapshot: Snapshot | null;
-    constructor(source: any, snapshot: Snapshot | null, indexed: boolean, valueEncoding: any);
+    constructor(
+      source: any,
+      snapshot: Snapshot | null,
+      indexed: boolean,
+      valueEncoding: any,
+    );
     base: unknown; // Should specify actual type
     id: unknown; // Should specify actual type
     key: unknown; // Should specify actual type
@@ -95,7 +111,9 @@ declare module 'autobase' {
     getUserData(name: string): Promise<any>;
     setUserData(name: string, value: any, opts: any): Promise<any>;
     snapshot(options?: { valueEncoding?: any }): any;
-    session(options?: { valueEncoding?: any, snapshot?: boolean, indexed?: boolean }): any;
+    session(
+      options?: { valueEncoding?: any; snapshot?: boolean; indexed?: boolean },
+    ): any;
     update(opts: any): Promise<boolean>;
     seek(byteOffset: number, opts: any): Promise<[number, number] | null>;
     get(index: number, opts: any): Promise<any>;
@@ -144,13 +162,17 @@ declare module 'autobase' {
     private _ensureUserData(core: Hypercore, force: boolean): Promise<void>;
     createSession(valueEncoding: any, indexed: boolean): AutocoreSession;
     createSnapshot(valueEncoding: any): AutocoreSession;
-    private _createSession(snapshot: Snapshot | null, valueEncoding: any, indexed: boolean): AutocoreSession;
+    private _createSession(
+      snapshot: Snapshot | null,
+      valueEncoding: any,
+      indexed: boolean,
+    ): AutocoreSession;
     seek(bytes: number, opts: any): Promise<any>;
     get(index: number, opts: any): Promise<any>;
     setUserData(name: string, val: any, opts: any): Promise<any>;
     getUserData(name: string): Promise<any>;
     truncate(newLength: number): void;
-    checkpoint(): Promise<{ checkpointer: number, checkpoint: any }>;
+    checkpoint(): Promise<{ checkpointer: number; checkpoint: any }>;
     private _checkpoint(): Promise<any>;
     private _updateCheckpoint(migrated: any): Promise<void>;
     update(opts: any): any; // Should specify actual type
@@ -175,7 +197,11 @@ declare module 'autobase' {
   const EMPTY: Buffer;
 
   function staticManifest(hash: Buffer): Object;
-  function getBlockKey(bootstrap: string, encryptionKey: Buffer, name: string): Buffer;
+  function getBlockKey(
+    bootstrap: string,
+    encryptionKey: Buffer,
+    name: string,
+  ): Buffer;
   function indexersWithManifest(indexers: Array<any>): Array<any>;
 
   class AutoStore {
@@ -185,21 +211,30 @@ declare module 'autobase' {
     get(opts: any, moreOpts?: any): Autocore;
     getSystemCore(): any;
     getWriters(keys: Array<any>): Promise<Array<any>>;
-    getCore(ac: Autocore, indexers: Array<any>, length: number, opts?: any): Promise<any>;
+    getCore(
+      ac: Autocore,
+      indexers: Array<any>,
+      length: number,
+      opts?: any,
+    ): Promise<any>;
     getIndexedCores(): Array<any>;
     flush(): Promise<boolean>;
     deriveNamespace(name: string, entropy: Buffer): Buffer;
     getByKey(key: Buffer, indexers?: Array<any>): any;
     getByIndex(index: number): any;
-    deriveKey(name: string, indexers?: Array<any>, prologue?: Buffer | null): Buffer | null;
+    deriveKey(
+      name: string,
+      indexers?: Array<any>,
+      prologue?: Buffer | null,
+    ): Buffer | null;
   }
 
-  export const AUTOBASE_VERSION: number
-  export const DEFAULT_ACK_INTERVAL: number
-  export const DEFAULT_ACK_THRESHOLD: number
-  export const FF_THRESHOLD: number
-  export const DEFAULT_FF_TIMEOUT: number
-  export const REMOTE_ADD_BATCH: number
+  export const AUTOBASE_VERSION: number;
+  export const DEFAULT_ACK_INTERVAL: number;
+  export const DEFAULT_ACK_THRESHOLD: number;
+  export const FF_THRESHOLD: number;
+  export const DEFAULT_FF_TIMEOUT: number;
+  export const REMOTE_ADD_BATCH: number;
 
   export default class Autobase<T = Autocore, H = any> extends ReadyResource {
     private _draining: boolean;
@@ -216,11 +251,22 @@ declare module 'autobase' {
     public local: Hypercore<H>;
     public view: T;
 
-    constructor(store: Corestore, bootstrap: string | Buffer | null, handlers?: AutobaseHandlers<T>);
+    constructor(
+      store: Corestore,
+      bootstrap: string | Buffer | null,
+      handlers?: AutobaseHandlers<T>,
+    );
 
-    static getLocalCore(store: Corestore<T>): Hypercore;
+    static getLocalCore(
+      store: Corestore<T>,
+      handlers?: AutobaseHandlers<T>,
+      encryptionKey?: Buffer,
+    ): Hypercore;
 
-    [Symbol.for('nodejs.util.inspect.custom')](depth: number, opts?: { indentationLvl: number }): string;
+    [Symbol.for("nodejs.util.inspect.custom")](
+      depth: number,
+      opts?: { indentationLvl: number },
+    ): string;
     bootstraps: string[];
     writable: boolean;
     key: Buffer;
@@ -240,12 +286,19 @@ declare module 'autobase' {
     close(): Promise<void>;
   }
 
-  export interface AutobaseHandlers<T> {
-    apply?: (batch: any[], view: T, base: Autobase<T>) => Promise<void>;
-    open?: (store: Corestore) => T;
-    close?: () => void;
-    valueEncoding?: 'utf8' | 'json' | 'binary';
- }
+  export interface AutobaseHandlers {
+    valueEncoding?: "utf-8" | "json" | "binary";
+    encrypted?: boolean;
+    encryptionKey?: Buffer;
+    keyPair?: KeyPair;
+    fastForward?: boolean | Object;
+    ackInterval?: number;
+    ackThreshold?: number;
+    onindex?: (...args: any[]) => void;
+    apply?: (...args: any[]) => void;
+    open?: (...args: any[]) => void;
+    close?: (...args: any[]) => void;
+  }
 
   function noop(): void;
   function emitWarning(this: Autobase, message: string): void;

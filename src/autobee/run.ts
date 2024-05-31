@@ -7,8 +7,6 @@ import b4a from "b4a";
 
 import Hyperswarm from "hyperswarm";
 import Corestore from "corestore";
-import Hyperbee from "hyperbee";
-import Autobase from "autobase";
 import Autobee from "./index";
 
 const logger = consola.create({
@@ -40,46 +38,7 @@ const rl = readline.createInterface({
 const store = new Corestore(storageDir);
 await store.ready();
 
-const db = new Autobee(store.session(), bootstrap, {
-  apply: async (batch: any[], view: Hyperbee, base: Autobase<Hyperbee>) => {
-    for (const node of batch) {
-      const { type, key, value, opts } = node.value;
-
-      const release = await lock();
-      logger.log(chalk.red("Operation"));
-      logger.log(
-        chalk.green("writer"),
-        chalk.cyan(b4a.toString(node.from.key, "hex")),
-      );
-      logger.log(chalk.gray("-----"));
-      Object.entries({ type, key, value, opts }).forEach(([k, v]) => {
-        logger.log(chalk.green(k), chalk.yellow(JSON.stringify(v)));
-      });
-      logger.log(chalk.gray("-----\n"));
-      release();
-
-      switch (type) {
-        case "add": {
-          const release = await lock();
-          logger.log(chalk.green("Adding writer"));
-          logger.log(chalk.gray("-----"));
-          logger.log(
-            chalk.green("writer"),
-            chalk.cyan(b4a.toString(key, "hex")),
-          );
-          logger.log(chalk.gray("-----\n"));
-          release();
-
-          await base.addWriter(b4a.from(key, "hex"), {
-            indexer: true,
-          });
-        }
-      }
-    }
-
-    await Autobee.apply(batch, view, base);
-  },
-});
+const db = new Autobee(store.session(), bootstrap, { valueEncoding: "binary" });
 await db.ready();
 
 db.view.core.on(

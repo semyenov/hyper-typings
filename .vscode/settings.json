@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "editor.tabCompletion": "off",
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
@@ -56,13 +55,13 @@
     "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    "editor.defaultFormatter": "denoland.vscode-deno"
   },
   "[markdown]": {
     "editor.formatOnSave": false
   },
   "[javascript]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[ignore]": {
     "editor.defaultFormatter": "foxundermoon.shell-format"
@@ -74,7 +73,3 @@
     "editor.defaultFormatter": "foxundermoon.shell-format"
   }
 }
-=======
-    "typescript.tsdk": "node_modules/typescript/lib"
-}
->>>>>>> dc17d155d6cdf21ffe70b5259a3ad4f9f6c343e7

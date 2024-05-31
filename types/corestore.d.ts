@@ -14,7 +14,7 @@ declare module 'corestore' {
   export default class Corestore extends EventEmitter {
     constructor(storage: Storage | string, opts?: CorestoreOptions)
     ready(): Promise<void>
-    get(key: strine, opts?: GetOptions): Hypercore
+    get<T = Buffer>(key: strine, opts?: GetOptions): Hypercore<T>
     get(opts?: GetOptions): Hypercore
     replicate(isInitiator: boolean | Stream, opts?: ReplicateOptions): Stream
     namespace(name: string, opts?: NamespaceOptions): Corestore

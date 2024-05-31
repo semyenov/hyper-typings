@@ -1,18 +1,17 @@
+declare module "dht-rpc" {
+  import { EventEmitter } from "node:events";
+  import { Buffer } from "node:buffer";
+  import { Readable } from "stream";
 
-declare module 'dht-rpc' {
-  import { EventEmitter } from 'node:events'
-  import { Buffer } from 'node:buffer'
-  import { Readable } from 'stream'
-
-  import RoutingTable from 'kademlia-routing-table';
-  import TOS from 'time-ordered-set'
-  import UDX, { UDXSocket } from 'udx-native'
+  import RoutingTable from "kademlia-routing-table";
+  import TOS from "time-ordered-set";
+  import UDX, { UDXSocket } from "udx-native";
 
   export interface Node {
     host: string;
     port: number;
     id?: Buffer;
-  };
+  }
 
   export interface QueryInput {
     target: Buffer;
@@ -55,7 +54,7 @@ declare module 'dht-rpc' {
     udx?: UDX;
     concurrency?: number;
     addNode?: (node: Node) => void;
-    nodes?: TOS;
+    nodes?: TOS<Node>;
     ephemeral?: boolean;
     adaptive?: boolean;
     quickFirewall?: boolean;
@@ -105,7 +104,16 @@ declare module 'dht-rpc' {
     suspend(): void;
     resume(): Promise<void>;
     bind(): Promise<void>;
-    createRequest(to: Node, token: Uint8Array | null, internal: boolean, command: number, target: any | null, value: any | null, session: any | null, ttl: number): Request | null; // Adjust 'any' to the actual types
+    createRequest(
+      to: Node,
+      token: Uint8Array | null,
+      internal: boolean,
+      command: number,
+      target: any | null,
+      value: any | null,
+      session: any | null,
+      ttl: number,
+    ): Request | null; // Adjust 'any' to the actual types
   }
 
   export class DHT extends EventEmitter {
@@ -121,11 +129,11 @@ declare module 'dht-rpc' {
     readonly table: RoutingTable;
     readonly udx: UDX;
     readonly io: IO;
-    readonly nodes: TOS;
+    readonly nodes: TOS<Node>;
     readonly bootstrapNodes: Node[];
 
     private concurrency: number;
-    private bootstrapped: boolean
+    private bootstrapped: boolean;
     private ephemeral: boolean;
     private firewalled: boolean;
     private adaptive: boolean;
@@ -150,61 +158,101 @@ declare module 'dht-rpc' {
     refresh(): void;
     destroy(): void;
 
-    on(event: 'ready', listener: () => void): this;
-    on(event: 'suspend', listener: () => void): this;
-    on(event: 'resume', listener: () => void): this;
-    on(event: 'ping', listener: (node: Node, ms: number) => void): this;
-    on(event: 'node', listener: (node: Node) => void): this;
-    on(event: 'node-failed', listener: (node: Node, reason: string) => void): this;
-    on(event: 'node-removed', listener: (node: Node, reason: string) => void): this;
-    on(event: 'query', listener: (query: Query) => void): this;
-    on(event: 'query-failed', listener: (query: Query, reason: string) => void): this;
-    on(event: 'query-finished', listener: (query: Query) => void): this;
-    on(event: 'error', listener: (err: Error) => void): this;
+    on(event: "ready", listener: () => void): this;
+    on(event: "suspend", listener: () => void): this;
+    on(event: "resume", listener: () => void): this;
+    on(event: "ping", listener: (node: Node, ms: number) => void): this;
+    on(event: "node", listener: (node: Node) => void): this;
+    on(
+      event: "node-failed",
+      listener: (node: Node, reason: string) => void,
+    ): this;
+    on(
+      event: "node-removed",
+      listener: (node: Node, reason: string) => void,
+    ): this;
+    on(event: "query", listener: (query: Query) => void): this;
+    on(
+      event: "query-failed",
+      listener: (query: Query, reason: string) => void,
+    ): this;
+    on(event: "query-finished", listener: (query: Query) => void): this;
+    on(event: "error", listener: (err: Error) => void): this;
     on(event: string, listener: (...args: any[]) => void): this;
 
-    once(event: 'ready', listener: () => void): this;
-    once(event: 'suspend', listener: () => void): this;
-    once(event: 'resume', listener: () => void): this;
-    once(event: 'ping', listener: (node: Node, ms: number) => void): this;
-    once(event: 'node', listener: (node: Node) => void): this;
-    once(event: 'node-failed', listener: (node: Node, reason: string) => void): this;
-    once(event: 'node-removed', listener: (node: Node, reason: string) => void): this;
-    once(event: 'query', listener: (query: Query) => void): this;
-    once(event: 'query-failed', listener: (query: Query, reason: string) => void): this;
-    once(event: 'query-finished', listener: (query: Query) => void): this;
-    once(event: 'error', listener: (err: Error) => void): this;
+    once(event: "ready", listener: () => void): this;
+    once(event: "suspend", listener: () => void): this;
+    once(event: "resume", listener: () => void): this;
+    once(event: "ping", listener: (node: Node, ms: number) => void): this;
+    once(event: "node", listener: (node: Node) => void): this;
+    once(
+      event: "node-failed",
+      listener: (node: Node, reason: string) => void,
+    ): this;
+    once(
+      event: "node-removed",
+      listener: (node: Node, reason: string) => void,
+    ): this;
+    once(event: "query", listener: (query: Query) => void): this;
+    once(
+      event: "query-failed",
+      listener: (query: Query, reason: string) => void,
+    ): this;
+    once(event: "query-finished", listener: (query: Query) => void): this;
+    once(event: "error", listener: (err: Error) => void): this;
     once(event: string, listener: (...args: any[]) => void): this;
 
-    emit(event: 'ready'): boolean;
-    emit(event: 'suspend'): boolean;
-    emit(event: 'resume'): boolean;
-    emit(event: 'ping', node: Node, ms: number): boolean;
-    emit(event: 'node', node: Node): boolean;
-    emit(event: 'node-failed', node: Node, reason: string): boolean;
-    emit(event: 'node-removed', node: Node, reason: string): boolean;
-    emit(event: 'query', query: Query): boolean;
-    emit(event: 'query-failed', query: Query, reason: string): boolean;
-    emit(event: 'query-finished', query: Query): boolean;
-    emit(event: 'error', err: Error): boolean;
+    emit(event: "ready"): boolean;
+    emit(event: "suspend"): boolean;
+    emit(event: "resume"): boolean;
+    emit(event: "ping", node: Node, ms: number): boolean;
+    emit(event: "node", node: Node): boolean;
+    emit(event: "node-failed", node: Node, reason: string): boolean;
+    emit(event: "node-removed", node: Node, reason: string): boolean;
+    emit(event: "query", query: Query): boolean;
+    emit(event: "query-failed", query: Query, reason: string): boolean;
+    emit(event: "query-finished", query: Query): boolean;
+    emit(event: "error", err: Error): boolean;
     emit(event: string, ...args: any[]): boolean;
 
-    off(event: 'ready', listener: () => void): this;
-    off(event: 'suspend', listener: () => void): this;
-    off(event: 'resume', listener: () => void): this;
-    off(event: 'ping', listener: (node: Node, ms: number) => void): this;
-    off(event: 'node', listener: (node: Node) => void): this;
-    off(event: 'node-failed', listener: (node: Node, reason: string) => void): this;
-    off(event: 'node-removed', listener: (node: Node, reason: string) => void): this;
-    off(event: 'query', listener: (query: Query) => void): this;
-    off(event: 'query-failed', listener: (query: Query, reason: string) => void): this;
-    off(event: 'query-finished', listener: (query: Query) => void): this;
-    off(event: 'error', listener: (err: Error) => void): this;
+    off(event: "ready", listener: () => void): this;
+    off(event: "suspend", listener: () => void): this;
+    off(event: "resume", listener: () => void): this;
+    off(event: "ping", listener: (node: Node, ms: number) => void): this;
+    off(event: "node", listener: (node: Node) => void): this;
+    off(
+      event: "node-failed",
+      listener: (node: Node, reason: string) => void,
+    ): this;
+    off(
+      event: "node-removed",
+      listener: (node: Node, reason: string) => void,
+    ): this;
+    off(event: "query", listener: (query: Query) => void): this;
+    off(
+      event: "query-failed",
+      listener: (query: Query, reason: string) => void,
+    ): this;
+    off(event: "query-finished", listener: (query: Query) => void): this;
+    off(event: "error", listener: (err: Error) => void): this;
     off(event: string, listener: (...args: any[]) => void): this;
   }
 
   export class Request {
-    constructor(io: IO, socket: UDXSocket, tid: number, from: any, to: any, token: Buffer | null, internal: boolean, command: number, target: Buffer | null, value: Buffer | null, session: Session | null, ttl: number);
+    constructor(
+      io: IO,
+      socket: UDXSocket,
+      tid: number,
+      from: any,
+      to: any,
+      token: Buffer | null,
+      internal: boolean,
+      command: number,
+      target: Buffer | null,
+      value: Buffer | null,
+      session: Session | null,
+      ttl: number,
+    );
 
     // Properties
     socket: UDXSocket;
@@ -231,12 +279,27 @@ declare module 'dht-rpc' {
     error(code: number, opts?: any): void; // Define a more specific type for opts if possible
     relay(value: Buffer | null, to: any, opts?: any): void; // Define a more specific type for to and opts if possible
     send(force?: boolean): void;
-    sendReply(error: number, value: Buffer | null, token: boolean, hasCloserNodes: boolean, from: any, socket: UDXSocket, ttl?: number): void; // Define a more specific type for from if possible
+    sendReply(
+      error: number,
+      value: Buffer | null,
+      token: boolean,
+      hasCloserNodes: boolean,
+      from: any,
+      socket: UDXSocket,
+      ttl?: number,
+    ): void; // Define a more specific type for from if possible
     destroy(err?: Error): void;
   }
 
   export class Query extends Readable {
-    constructor(dht: DHT, target: Buffer, internal: boolean, command: number, value: Buffer | null, opts?: QueryOptions);
+    constructor(
+      dht: DHT,
+      target: Buffer,
+      internal: boolean,
+      command: number,
+      value: Buffer | null,
+      opts?: QueryOptions,
+    );
 
     // Properties
     dht: DHT;
@@ -265,7 +328,11 @@ declare module 'dht-rpc' {
 
     // Methods
     query(query: QueryInput, opts?: QueryOptions): Query;
-    request(request: RequestInput, to: Node, opts?: RequestOptions): Promise<void>;
+    request(
+      request: RequestInput,
+      to: Node,
+      opts?: RequestOptions,
+    ): Promise<void>;
     ping(to: Node, opts?: PingOptions): Promise<void>;
     destroy(err?: Error): void;
   }

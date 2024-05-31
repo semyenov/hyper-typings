@@ -5,7 +5,7 @@ import b4a from 'b4a'
 
 // // create the view
 // export async function open (store: Corestore) {
-//   return store.get('view', { valueEncoding: 'json' })
+//   return store.get('view', { valueEncoding: 'binary' })
 // }
 
 // // use apply to handle to updates

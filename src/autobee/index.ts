@@ -3,39 +3,79 @@ import Hypercore from "hypercore";
 import Corestore from "corestore";
 import Hyperbee, { HyperbeeRange } from "hyperbee";
 import Autobase, { AutobaseHandlers } from "autobase";
+import codecs, { Codec } from "codecs";
 
-type Op = {
+type AutobeeOp = {
   type: "del" | "put" | "add" | "exit";
-  key: string;
+  key: string | Buffer;
   value?: any;
   opts?: any;
 };
 
-export default class Autobee extends Autobase<Hyperbee, Op> {
+export default class Autobee extends Autobase<Hyperbee, AutobeeOp> {
+  private readonly _valueEncoder: Codec;
+  private readonly _indexCore: Hypercore<AutobeeOp>;
   constructor(
     store: Corestore,
     bootstrap: Buffer | string | null,
-    handlers: AutobaseHandlers<Hyperbee> = {},
+    handlers: AutobaseHandlers = {},
   ) {
-    super(store, bootstrap, {
-      apply: Autobee.apply,
+    handlers.valueEncoding = handlers.valueEncoding! || "binary";
+    const indexCore = store.get<AutobeeOp>({ name: "autobee-index" });
+    const open = (store: Corestore) => {
+      const core = store.get({ name: "autobase" });
+      return new Hyperbee(core, {
+        extension: false,
+        keyEncoding: "utf-8",
+        valueEncoding: handlers.valueEncoding,
+      });
+    };
 
-      ...handlers,
+    const apply = async (
+      nodes: { value: AutobeeOp; from: Hypercore }[],
+      view: Hyperbee,
+      base: Autobase<Hyperbee, AutobeeOp>,
+    ) => {
+      const batch = view.batch({ update: false });
+      for (const node of nodes) {
+        const op = node.value;
+        console.log("put", op.key, op.value, op.opts);
 
-      valueEncoding: "json",
-      open: (store: Corestore) => {
-        const core = store.get("autobee");
-        return new Hyperbee(core, {
-          extension: false,
-          valueEncoding: "json",
-          keyEncoding: "utf-8",
-        });
-      },
-    });
+        const type = op.type;
+        const key = op.key;
+        const value = op.value ? b4a.from(op.value, "binary") : undefined;
+
+        switch (type) {
+          case "put":
+            await batch.put(key, value);
+            break;
+          case "del":
+            await batch.del(key);
+            break;
+          case "add": {
+            await base.addWriter(b4a.from(key), {
+              indexer: true,
+            });
+          }
+        }
+      }
+
+      await batch.flush();
+    };
+
+    super(store, bootstrap, { ...handlers, apply, open });
+
+    this._valueEncoder = codecs[handlers.valueEncoding];
+    this._indexCore = indexCore;
+  }
+
+  async ready() {
+    await super.ready();
+    await this._indexCore.ready();
   }
 
   async add(key: string, opts: any = {}) {
-    await this.append({
+    await this._indexCore.append({
       type: "add",
       key,
       value: null,
@@ -54,12 +94,11 @@ export default class Autobee extends Autobase<Hyperbee, Op> {
     return this.append({
       type: "del",
       key,
-      value: null,
       opts,
     });
   }
   async get<T = any>(key: string, opts: any = {}) {
-    return this.view.get<T>(b4a.from(key, "hex"), opts);
+    return this.view.get<T>(key, opts);
   }
   async peek<T = any>(range?: HyperbeeRange, opts: any = {}) {
     return this.view.peek<T>(range, opts);
@@ -67,28 +106,5 @@ export default class Autobee extends Autobase<Hyperbee, Op> {
 
   createReadStream<T = any>(range?: HyperbeeRange, opts: any = {}) {
     return this.view.createReadStream<T>(range, opts);
-  }
-
-  static async apply(
-    batch: { value: Op; from: Hypercore }[],
-    view: Hyperbee,
-    base: Autobase<Hyperbee, Op>,
-  ) {
-    const b = view.batch({ update: false });
-
-    for (const node of batch) {
-      const { type, key, value, opts } = node.value;
-      switch (type) {
-        case "put":
-          await b.put(key, value, opts);
-          break;
-        case "del":
-          await b.del(key, opts);
-          break;
-      }
-    }
-
-    await b.flush();
-    await b.close();
   }
 }

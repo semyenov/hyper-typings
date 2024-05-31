@@ -15,7 +15,7 @@ await corestore.ready()
 const LocalAutobase = new Autobase(corestore, RemoteAutobase.key, {
   open,
   apply,
-  valueEncoding: 'json',
+  valueEncoding: 'binary',
 })
 
 // LocalAutobase.ready()
@@ -34,7 +34,7 @@ logger.info('remote', hypercore)
 
 const hyperbee = new Hyperbee(hypercore, {
   keyEncoding: 'utf-8',
-  valueEncoding: 'json',
+  valueEncoding: 'binary',
 })
 
 await hyperbee.ready()

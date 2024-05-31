@@ -1,21 +1,30 @@
 
 declare module 'hyperdht' {
+  import ReadyResource from 'ready-resource';
+  import { NoiseSecretStream } from '@hyperswarm/secret-stream';
   import { UDXSocket } from 'udx-native'
   import { EventEmitter } from 'events'
 
-  export default class DHT extends EventEmitter {
-    constructor(options?: {
-      bootstrap?: string[]
-      keyPair?: KeyPair
-      connectionKeepAlive?: number
-    })
+  interface KeyPair {
+    publicKey: Buffer
+    secretKey: Buffer
+  }
 
+  interface DHTOptions {
+    bootstrap?: string[];
+    keyPair?: KeyPair;
+    connectionKeepAlive?: number;
+  }
+  export default class DHT extends EventEmitter implements ReadyResource {
+    constructor(options?: DHTOptions)
+    
     static keyPair(seed?: Buffer): KeyPair
-
-    destroy(options?: { force?: boolean }): Promise<void>
-
     static bootstrapper(port: number, host: string, options?: any): DHT
 
+    ready(): Promise<void>;
+
+    close(): Promise<void>;
+    
     createServer(
       options?: {
         firewall?: (
@@ -23,13 +32,13 @@ declare module 'hyperdht' {
           remoteHandshakePayload: any,
         ) => boolean
       },
-      onconnection?: (socket: Socket) => void,
+      onconnection?: (socket: NoiseSecretStream) => void,
     ): Server
 
     connect(
       remotePublicKey: Buffer,
       options?: { nodes?: any[]; keyPair?: KeyPair },
-    ): Socket
+    ): NoiseSecretStream
 
     lookup(topic: Buffer, options?: any): LookupStream
 
@@ -68,11 +77,7 @@ declare module 'hyperdht' {
       options?: { seq?: number; latest?: boolean },
     ): Promise<{ value: Buffer; from: any; seq: number; signature: Buffer }>
 
-  }
-
-  interface KeyPair {
-    publicKey: Buffer
-    secretKey: Buffer
+    destroy(options?: { force?: boolean }): Promise<void>
   }
 
   export class Server extends EventEmitter {
@@ -82,7 +87,7 @@ declare module 'hyperdht' {
     address(): { host: string; port: number; publicKey: Buffer }
     nodes: any[]
 
-    on(eventName: 'connection', listener: (socket: Socket) => void): this;
+    on(eventName: 'connection', listener: (socket: NoiseSecretStream) => void): this;
   }
 
   interface Socket extends UDXSocket {

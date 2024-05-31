@@ -65,7 +65,7 @@ async function createBase(store: Corestore, key: Buffer | null, opts = {}) {
     apply,
     open,
     close: undefined,
-    valueEncoding: 'json',
+    valueEncoding: 'binary',
     ackInterval: 0,
     ackThreshold: 0,
     encryptionKey,
@@ -80,7 +80,7 @@ async function createBase(store: Corestore, key: Buffer | null, opts = {}) {
 }
 
 function open(store: Corestore) {
-  return store.get('view', { valueEncoding: 'json' });
+  return store.get('view', { valueEncoding: 'binary' });
 }
 
 async function addWriter(base: Autobase, add: any, indexer: boolean = true) {
